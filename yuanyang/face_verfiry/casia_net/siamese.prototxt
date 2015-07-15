@@ -496,6 +496,12 @@ layer {
     }
   }
 }
+layer{
+    name: "norm"
+    type: "GRN"
+    bottom: "feat"
+    top: "feat"
+}
 
 # same network , but share the same layer
 
@@ -946,6 +952,12 @@ layer {
       value: 0
     }
   }
+}
+layer {
+    name: "norm_p"
+    type: "GRN"
+    bottom: "feat_p"
+    top: "feat_p"
 }
 layer {
   name: "loss"

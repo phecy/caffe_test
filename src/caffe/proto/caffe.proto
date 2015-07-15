@@ -786,6 +786,7 @@ message V1LayerParameter {
     CONVOLUTION = 4;
     DATA = 5;
     DECONVOLUTION = 39;
+    GRN = 40;
     DROPOUT = 6;
     DUMMY_DATA = 32;
     EUCLIDEAN_LOSS = 7;

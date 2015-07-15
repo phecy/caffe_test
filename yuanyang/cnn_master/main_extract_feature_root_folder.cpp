@@ -108,7 +108,7 @@ int main( int argc, char **argv )
 {
     /*  set paths for model */
     string model_deploy_file = "../face_deploy.prototxt";   
-    string model_binary_file = "../face_ver_siamese__iter_2000.caffemodel";
+    string model_binary_file = "../face_ver_siamese__iter_26000.caffemodel";
     string model_mean_file   = "../face_mean.binaryproto";
 
     cnn_master cnnfeature;
@@ -116,12 +116,12 @@ int main( int argc, char **argv )
     cout<<"input should have width : "<<cnnfeature.get_input_width()<<endl;
     cout<<"input should have height : "<<cnnfeature.get_input_height()<<endl;
     cout<<"input should have channels : "<<cnnfeature.get_input_channels()<<endl;
-    cout<<"output dimension "<<cnnfeature.get_output_dimension("pool5")<<endl;
+    cout<<"output dimension "<<cnnfeature.get_output_dimension("norm5")<<endl;
 
     /* 2 test on negative pair */
     //string folder_root = "/home/yuanyang/data/face_recognition/idcard_crop/";
-    //string folder_root = "/home/yuanyang/data/face_recognition/CASIA/casia_crop/";
-    string folder_root = "/home/yuanyang/data/face_recognition/lfw/lfw_crop/neg/";
+    string folder_root = "/home/yuanyang/data/face_recognition/CASIA/casia_crop/";
+    //string folder_root = "/home/yuanyang/data/face_recognition/lfw/lfw_crop/pos/";
 
 
     bf::directory_iterator end_it;
@@ -159,8 +159,8 @@ int main( int argc, char **argv )
         }
         
         cout<<"folder_name is "<<folder_name<<endl;
-        cnnfeature.extract_blob( "pool5", input_imgs, features);
-        saveMatToFile( features, "lfw_neg/"+folder_name+".mat");
+        cnnfeature.extract_blob( "norm5", input_imgs, features);
+        saveMatToFile( features, "casID/"+folder_name+".mat");
 	}
     return 0;
 }
