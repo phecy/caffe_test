@@ -10,10 +10,10 @@ layer {
   transform_param {
     mirror: true
     crop_size: 124
-    mean_file: "yuanyang/face_verfiry/face_siamese_mean.binaryproto"
+    mean_file: "yuanyang/face_verfiry/id_face_mean.binaryproto"
   }
   data_param {
-    source: "yuanyang/face_verfiry/train_ver_leveldb/"
+    source: "yuanyang/face_verfiry/train_level_db/"
     batch_size: 32
     backend: LEVELDB
   }
@@ -29,10 +29,10 @@ layer {
   transform_param {
     mirror: false
     crop_size: 124
-    mean_file: "yuanyang/face_verfiry/face_siamese_mean.binaryproto"
+    mean_file: "yuanyang/face_verfiry/id_face_mean.binaryproto"
   }
   data_param {
-    source: "yuanyang/face_verfiry/test_ver_leveldb/"
+    source: "yuanyang/face_verfiry/test_id_leveldb/"
     batch_size: 32
     backend: LEVELDB
   }
@@ -955,6 +955,6 @@ layer {
   bottom: "sim"
   top: "loss"
   contrastive_loss_param {
-    margin: 0.8
+    margin: 0.6
   }
 }

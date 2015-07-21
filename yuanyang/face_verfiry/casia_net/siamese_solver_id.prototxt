@@ -1,0 +1,14 @@
+net: "yuanyang/face_verfiry/casia_net/siamese_id.prototxt"
+test_iter: 32
+test_interval: 500
+base_lr: 0.001
+lr_policy: "step"
+gamma: 0.1
+stepsize: 1800
+display: 100
+max_iter: 500000
+momentum: 0.9
+weight_decay: 0.0005
+snapshot: 2000
+snapshot_prefix: "yuanyang/face_verfiry/casia_net/face_ver_siamese_id_"
+solver_mode: GPU

@@ -395,38 +395,38 @@ layer {
 		stride: 1
 	}
 }
-#layer {
-#  name: "feat"
-#  type: "InnerProduct"
-#  bottom: "pool5"
-#  top: "feat"
-#  param {
-#    name: "feat_w"
-#    lr_mult: 10
-#    decay_mult: 1
-#  }
-#  param {
-#    name: "feat_b"
-#    lr_mult: 20
-#    decay_mult: 0
-#  }
-#  inner_product_param {
-#    num_output: 128
-#    weight_filler {
-#      type: "xavier"
-#    }
-#    bias_filler {
-#      type: "constant"
-#      value: 0
-#    }
-#  }
-#}
-#layer {
-#    name: "normalization"
-#    type: "GRN"
-#    bottom: "feat"
-#    top: "norm5"
-#}
+layer {
+  name: "feat"
+  type: "InnerProduct"
+  bottom: "pool5"
+  top: "feat"
+  param {
+    name: "feat_w"
+    lr_mult: 10
+    decay_mult: 1
+  }
+  param {
+    name: "feat_b"
+    lr_mult: 20
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 128
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+    name: "normalization"
+    type: "GRN"
+    bottom: "feat"
+    top: "norm5"
+}
 
 #layer {
 #  name: "classfy1"

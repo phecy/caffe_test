@@ -35,6 +35,40 @@ using namespace cv;
 namespace bf=boost::filesystem;
 namespace bl=boost::lambda;
 
+
+struct pair_info
+{
+    string image1;
+    string image2;
+    int label;
+};
+
+bool read_in_file_list( const string &filelist,
+                        vector<pair_info> &train_file)
+{
+    train_file.clear();
+    std::ifstream in_file( filelist.c_str());
+    if( !in_file.is_open())
+    {
+        LOG(WARNING)<<"Can not open file "<<filelist;
+        return false;
+    }
+    
+    string image1, image2;
+    int label=0;
+
+    while( in_file>>image1>>image2>>label )
+    {
+        pair_info t;
+        t.image1 = image1;
+        t.image2 = image2;
+        t.label = label;
+        train_file.push_back( t);
+    }
+
+    return true;
+}
+
 void saveMatToFile( const Mat& data,
                     const string &path)
 {
@@ -108,7 +142,7 @@ int main( int argc, char **argv )
 {
     /*  set paths for model */
     string model_deploy_file = "../face_deploy.prototxt";   
-    string model_binary_file = "../face_softmax_726.caffemodel";
+    string model_binary_file = "../face_ver_siamese.caffemodel";
     string model_mean_file   = "../face_mean.binaryproto";
 
     cnn_master cnnfeature;
@@ -120,48 +154,32 @@ int main( int argc, char **argv )
 
     /* 2 test on negative pair */
     //string folder_root = "/home/yuanyang/data/face_recognition/verification/id_test/";
-    string folder_root = "/home/yuanyang/data/face_recognition/CASIA/casia_crop/";
+    //string folder_root = "/home/yuanyang/data/face_recognition/CASIA/casia_crop/";
     //string folder_root = "/home/yuanyang/data/face_recognition/lfw/lfw_crop/pos/";
 
 
-    bf::directory_iterator end_it;
-	for( bf::directory_iterator folder_iter( folder_root); folder_iter!=end_it; folder_iter++)
-	{
-		if( !bf::is_directory(*folder_iter))
-			continue;
+    /* read in the list and compare */
+    vector<pair_info> train_file;
+    read_in_file_list( string(argv[1]), train_file);
 
-        int number_of_images = getNumberOfFilesInDir( folder_iter->path().string());
-        cout<<"processing subfolder "<<folder_iter->path().string()<<endl;
-        cout<<"   number of image is "<<number_of_images<<endl;
+    for( unsigned long i=0;i<train_file.size();i++)
+    {
+        cv::Mat img1  = cv::imread( train_file[i].image1, CV_LOAD_IMAGE_GRAYSCALE );
+        cv::Mat img2  = cv::imread( train_file[i].image2, CV_LOAD_IMAGE_GRAYSCALE );
+        cout<<"label is "<<train_file[i].label<<endl;
 
-        /* get Feature */
-        vector<Mat> input_imgs;
+        vector<Mat> imgs;
+        imgs.push_back( img1);
+        imgs.push_back(img2);
+
         Mat features;
+        cnnfeature.extract_blob( "norm5", imgs, features);
+        imshow("img1", img1);
+        imshow("img2", img2);
+        waitKey(0);
+        //cout<<"feature dim "<<features.cols<<" "<<features.rows<<endl;
+        cout<<"distance is "<<cv::norm( features.row(0) - features.row(1))<<endl;
+    }
 
-        bool first_image = true;
-        string folder_name;
-
-        bf::directory_iterator end_it2;
-	    for( bf::directory_iterator file_iter( folder_iter->path() ); file_iter!=end_it2; file_iter++)
-	    {
-	    	string pathname = file_iter->path().string();
-	    	string basename = bf::basename( *file_iter);
-	    	string extname  = bf::extension( *file_iter);
-
-            if( first_image)
-                folder_name = get_folder_name( pathname );
-
-            if( extname != ".jpg" && extname != ".png" && extname != ".bmp")
-                continue;
-
-            Mat input_img = imread( pathname, CV_LOAD_IMAGE_GRAYSCALE);
-            input_imgs.push_back( input_img);
-        }
-        
-        cout<<"folder_name is "<<folder_name<<endl;
-        cnnfeature.extract_blob( "norm5", input_imgs, features);
-        cout<<"feature's size is "<<features.cols<<" "<<features.rows<<endl;
-        saveMatToFile( features, "casID/"+folder_name+".mat");
-	}
     return 0;
 }
