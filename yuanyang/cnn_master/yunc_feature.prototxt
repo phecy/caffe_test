@@ -12,7 +12,6 @@ layer {
   top: "label"
   transform_param {
     mirror: false
-    #mean_file: "../face_mean.binaryproto"
   }
   memory_data_param {
     batch_size: 1
@@ -21,8 +20,6 @@ layer {
     width: 128
   }
 }
-
-
 
 layer {
   name: "conv1/7x7_s2"

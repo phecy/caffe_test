@@ -22,6 +22,7 @@
 
 #include "boost/algorithm/string.hpp"
 #include "boost/filesystem.hpp"
+#include "boost/pointer_cast.hpp"
 
 #include "google/protobuf/text_format.h"
 
@@ -100,11 +101,6 @@ bool cnn_master::load_model( const string &deploy_file_path,    /* in : path of 
         return false;
     }
 
-    if( !bf::exists( mean_file_path) )
-    {
-        cout<<"error, file "<<mean_file_path<<" does not exist , check again"<<endl;
-        return false;
-    }
     if( !bf::exists( model_file_path) )
     {
         cout<<"error, file "<<model_file_path<<" does not exist , check again"<<endl;
@@ -133,14 +129,36 @@ bool cnn_master::load_model( const string &deploy_file_path,    /* in : path of 
      * the interface*/
     caffe::BlobProto blob_proto;
     caffe::Blob<float> data_mean;
-    caffe::ReadProtoFromBinaryFileOrDie(mean_file_path.c_str(), &blob_proto);
-    data_mean.FromProto(blob_proto);
-    
-    m_input_height = data_mean.height();
-    m_input_width = data_mean.width();
-    m_input_channels = data_mean.channels();
 
-    m_batch_size = 128;
+    
+    if( bf::exists( mean_file_path) )
+    {
+        caffe::ReadProtoFromBinaryFileOrDie(mean_file_path.c_str(), &blob_proto);
+        data_mean.FromProto(blob_proto);
+    }
+    
+    /* now we extract the right input width, height, channel */
+    if( !m_network->has_layer("data"))
+    {
+        cout<<"--> Error, network should be start with layer names data "<<endl;
+        return false;
+    }
+    const shared_ptr<caffe::Layer<float> > data_layer = m_network->layer_by_name("data");
+    if( "MemoryData" != data_layer->type())
+    {
+        cout<<"--> Error, input layer should be of type MemoryData "<<endl;
+        return false;
+    }
+    else
+    {
+        const shared_ptr<caffe::MemoryDataLayer<float> > me_data_layer = 
+            boost::dynamic_pointer_cast<caffe::MemoryDataLayer<float> >(data_layer);
+        m_input_channels = me_data_layer->channels();
+        m_input_height = me_data_layer->height();
+        m_input_width  = me_data_layer->width();
+    }
+
+    m_batch_size = 16;
     return true;
 }
 

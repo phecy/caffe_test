@@ -31,6 +31,27 @@
 using namespace std;
 using namespace cv;
 
+double cosine_similarity( const Mat &sample1,
+                          const Mat &sample2)
+{
+    if( sample1.empty() || sample2.empty() || 
+        sample1.rows != 1 || sample2.rows!= 1||
+        sample1.cols != sample2.cols)
+        return 0;
+    double a_m_b = 0;
+    double a_norm = 0;
+    double b_norm = 0;
+
+    for( int c=0;c<sample1.cols;c++)
+    {
+        a_m_b += sample1.at<float>(0,c)*sample2.at<float>(0,c);
+        a_norm += sample1.at<float>(0,c)*sample1.at<float>(0,c);
+        b_norm += sample2.at<float>(0,c)*sample2.at<float>(0,c);
+    }
+    
+    return a_m_b/( sqrt(a_norm) * sqrt(b_norm));
+}
+
 
 namespace bf=boost::filesystem;
 
@@ -38,49 +59,40 @@ int main( int argc, char **argv )
 {
     /*  set paths for model */
     string model_deploy_file = string(argv[1]);   
-    string model_mean_file   = string(argv[2]);
-    string model_binary_file = string(argv[3]);
+    string model_binary_file = string(argv[2]);
+    string model_mean_file = "";
 
     cnn_master cnnfeature;
     cnnfeature.load_model( model_deploy_file, model_mean_file, model_binary_file);
-    cout<<"input should have width : "<<cnnfeature.get_input_width()<<endl;
-    cout<<"input should have height : "<<cnnfeature.get_input_height()<<endl;
-    cout<<"input should have channels : "<<cnnfeature.get_input_channels()<<endl;
-    cout<<"output dimension "<<cnnfeature.get_output_dimension("prob")<<endl;
 
-    Mat img1 = imread("f1.jpg");   
-    Mat img2 = imread("f2.jpg");   
-    Mat img3 = imread("f3.jpg");   
-    Mat img4 = imread("f4.jpg");   
-    Mat img5 = imread("e.jpg");   
-    
+    Mat img1 = imread("lyf2.png");   
+    Mat img2 = imread("lyf1.png");   
+    if(img1.empty())
+    {
+        cout<<"input image is empty!"<<endl;
+        return -1;
+    }
     vector<Mat> imagelist;
     imagelist.push_back(img1);
     imagelist.push_back(img2);
-    imagelist.push_back(img3);
-    imagelist.push_back(img4);
-    imagelist.push_back(img5);
-
 
     for(int c=0;c<imagelist.size();c++)
+    {
+        imshow("input",  imagelist[c]);
+        waitKey(0);
         cv::resize( imagelist[c], imagelist[c], Size(256,256), 0, 0 );
+    }
 
     Mat output_feature;
 
-    cnnfeature.extract_blob( "fc7", imagelist, output_feature);
+    cnnfeature.extract_blob( "output", imagelist, output_feature);
+    cout<<"output feature size "<<output_feature.cols<<" "<<output_feature.rows<<endl;
 
-    cout<<"f1 f2 dis "<<cv::norm( output_feature.row(0) - 
-                                  output_feature.row(1))<<endl;
+    cout<<"feature 1 "<<output_feature.row(0)<<endl;
+    cout<<"feature 2 "<<output_feature.row(1)<<endl;
 
-    cout<<"f1 f3 dis "<<cv::norm( output_feature.row(0) - 
-                                  output_feature.row(2))<<endl;
+    cout<<"Distance is "<<cv::norm( output_feature.row(0) - output_feature.row(1) )<<endl;
+    cout<<"Distance is "<<cosine_similarity( output_feature.row(0), output_feature.row(1) )<<endl;
 
-
-    cout<<"f1 f4 dis "<<cv::norm( output_feature.row(0) - 
-                                  output_feature.row(3))<<endl;
-
-
-    cout<<"f1 e dis "<<cv::norm( output_feature.row(0) - 
-                                  output_feature.row(4))<<endl;
     return 0;
 }
