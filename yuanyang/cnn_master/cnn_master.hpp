@@ -6,7 +6,6 @@
  *    Description:  
  *
  *        Version:  1.0
- *        Created:  2015年04月22日 16时52分11秒
  *       Compiler:  gcc
  *
  *         Author:  YuanYang (), bengouawu@gmail.com
@@ -101,6 +100,17 @@ class cnn_master
                          const int k=1);                                /* in : top k's k*/
 
 
+    /* 
+     * ===  FUNCTION  ======================================================================
+     *         Name:  set_transform_para
+     *  Description:  x_out = ( x_ori - substract_values_of_this_channel )*scale_factor
+     *                can not set both substract_values and mean_file in load_model functions()
+     * =====================================================================================
+     */
+    bool set_transform_para( const float &scale_factor,             /* in : scale factor */
+                             std::vector<float> &substract_values); /* in : substract those values for each channel */
+
+
     /*  Get the infos about the network's input and output */
     int get_input_width() const
     {
@@ -136,13 +146,19 @@ class cnn_master
     Net<float> *m_network;
 
     /* Networks's input size */
-    int m_input_width;
-    int m_input_height;
-    int m_input_channels;
+    unsigned int m_input_width;
+    unsigned int m_input_height;
+    unsigned int m_input_channels;
 
     /* Batch size of one Forward operation, this is limited by
      * the memory of the GPU, don't forget the network itself*/
-    int m_batch_size; /* set it to 64, 128 or 256 */
+    unsigned int m_batch_size; /* set it to 8,16,32,64, 128 or 256 */
+
+    /* scale factor */
+    float m_scale_factor;
+
+    /* substract value */
+    std::vector<float> m_subs_values;
 };
 
 

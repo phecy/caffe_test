@@ -6,7 +6,6 @@
  *    Description:  
  *
  *        Version:  1.0
- *        Created:  2015年04月22日 16时52分02秒
  *       Revision:  none
  *       Compiler:  gcc
  *
@@ -86,6 +85,11 @@ bool get_topk_value_and_index( const vector<float> &input_array,
 cnn_master::cnn_master()
 {
     /* do nothing */
+    m_input_channels = 0;
+    m_input_height = 0;
+    m_input_width = 0;
+    m_scale_factor = 1;
+    m_subs_values.clear();
 }
 
 
@@ -129,7 +133,6 @@ bool cnn_master::load_model( const string &deploy_file_path,    /* in : path of 
      * the interface*/
     caffe::BlobProto blob_proto;
     caffe::Blob<float> data_mean;
-
     
     if( bf::exists( mean_file_path) )
     {
@@ -156,8 +159,20 @@ bool cnn_master::load_model( const string &deploy_file_path,    /* in : path of 
         m_input_channels = me_data_layer->channels();
         m_input_height = me_data_layer->height();
         m_input_width  = me_data_layer->width();
-    }
 
+        // should be the same with mean_file if it's set
+        if( !mean_file_path.empty())
+        {
+            if( m_input_width != data_mean.width() ||
+                m_input_height != data_mean.height() ||
+                m_input_channels != data_mean.channels())
+            {
+                cout<<"--> Error, input_dim != mean_file_dim, check your prototxt and meanfile"<<endl;
+                return false;
+            }
+        }
+    }
+    
     m_batch_size = 16;
     return true;
 }
@@ -197,6 +212,7 @@ bool cnn_master::extract_blob(  const string &blob_name,                     /* 
                                 cv::Mat &cnn_feature                         /* out: output cnn feature */
                                 )
 {
+
     /*  check check check */
     if(!is_model_ready())
     {
