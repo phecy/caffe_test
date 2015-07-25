@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 2.8.7)
 
 # ---[ Set the right compiler
-set(CMAKE_CXX_COMPILER /usr/bin/g++-4.6)
-set(CMAKE_C_COMPILER /usr/bin/gcc-4.6)
+#set(CMAKE_CXX_COMPILER /usr/bin/g++-4.6)
+#set(CMAKE_C_COMPILER /usr/bin/gcc-4.6)
 # ---[ still have to add the /usr/local/lib
 #link_directories(/usr/lib64)
 

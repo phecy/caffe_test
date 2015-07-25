@@ -40,7 +40,6 @@
 
 using caffe::Blob;
 using caffe::Caffe;
-using caffe::Datum;
 using caffe::Net;
 using boost::shared_ptr;
 using std::string;
@@ -88,7 +87,7 @@ cnn_master::cnn_master()
     m_input_channels = 0;
     m_input_height = 0;
     m_input_width = 0;
-    m_scale_factor = 1;
+    m_scale_factor = 1.0;
     m_subs_values.clear();
 }
 
@@ -132,12 +131,11 @@ bool cnn_master::load_model( const string &deploy_file_path,    /* in : path of 
      * here we just want to get the input image's size( as mean image size ), since caffe lacks
      * the interface*/
     caffe::BlobProto blob_proto;
-    caffe::Blob<float> data_mean;
     
     if( bf::exists( mean_file_path) )
     {
         caffe::ReadProtoFromBinaryFileOrDie(mean_file_path.c_str(), &blob_proto);
-        data_mean.FromProto(blob_proto);
+        m_data_mean.FromProto(blob_proto);
     }
     
     /* now we extract the right input width, height, channel */
@@ -147,7 +145,7 @@ bool cnn_master::load_model( const string &deploy_file_path,    /* in : path of 
         return false;
     }
     const shared_ptr<caffe::Layer<float> > data_layer = m_network->layer_by_name("data");
-    if( "MemoryData" != data_layer->type())
+    if( !strcmp("MemoryData",data_layer->type()) )
     {
         cout<<"--> Error, input layer should be of type MemoryData "<<endl;
         return false;
@@ -163,9 +161,9 @@ bool cnn_master::load_model( const string &deploy_file_path,    /* in : path of 
         // should be the same with mean_file if it's set
         if( !mean_file_path.empty())
         {
-            if( m_input_width != data_mean.width() ||
-                m_input_height != data_mean.height() ||
-                m_input_channels != data_mean.channels())
+            if( m_input_width != m_data_mean.width() ||
+                m_input_height != m_data_mean.height() ||
+                m_input_channels != m_data_mean.channels())
             {
                 cout<<"--> Error, input_dim != mean_file_dim, check your prototxt and meanfile"<<endl;
                 return false;
@@ -272,6 +270,10 @@ bool cnn_master::extract_blob(  const string &blob_name,                     /* 
     std::vector<cv::Mat>::const_iterator start_iter = input_images.begin();
     std::vector<cv::Mat>::const_iterator end_iter   = input_images.begin() + 
                                                      ( m_batch_size > input_images.size()? input_images.size():m_batch_size);
+
+
+	/* buffer for input blobs */
+
     while(1)
     {
         if( start_iter >= input_images.end())
@@ -292,7 +294,7 @@ bool cnn_master::extract_blob(  const string &blob_name,                     /* 
         
         /* store the blob to Mat */
         const float *feature_blob_data = NULL;
-        for( unsigned int c=0;c<output_blob->num();c++)
+        for(  int c=0;c<output_blob->num();c++)
         {
             feature_blob_data = output_blob->cpu_data() + output_blob->offset(c);
             memcpy( cnn_feature.ptr( start_iter - input_images.begin() + c ), feature_blob_data, sizeof(float)*output_dimension);
@@ -383,4 +385,50 @@ bool cnn_master::get_topk_label(    const std::vector<cv::Mat> &input_images,   
     }
 
     return true;
+}
+
+
+bool cnn_master::make_blob_from_mat( const std::vector<cv::Mat> &input_imgs,
+									caffe::Blob<float> &output_blobs) const
+{
+	/* check the data */
+	for( unsigned int i=0; i<input_imgs.size(); i++)
+	{
+		if( input_imgs[i].channels() != m_input_channels ||
+				input_imgs[i].cols != m_input_width ||
+				input_imgs[i].rows != m_input_height ||
+				!input_imgs[i].isContinuous() ||
+				( input_imgs[i].type()!=CV_8U && input_imgs[i].type() != CV_8UC3))
+		{
+			cout<<"Error--> Wrong input shape : "<<input_imgs[i].channels()<<" "<<input_imgs[i].rows<<" "<<input_imgs[i].cols<<
+			"\t should have "<<m_input_channels<<" "<<m_input_height<<" "<<m_input_width<<
+			"Or input image's memory is not continuous "<<
+			"Or input image's format is not CV_8U or CV_8UC3 "<<endl;
+			return false;
+		}
+	}
+
+	/* reshape the blob, <num, channels, height, width> */
+	output_blobs.Reshape( input_imgs.size(), m_input_channels, m_input_height, m_input_width);
+
+	float for_subs_buffer = 0;
+	/* convert rgb image form the opencv format <BGRBGRBGR> to caffe format<RRRGGGBBB> */
+	for( unsigned int n=0; n<output_blobs.num(); n++)
+		for( unsigned int c=0;c<output_blobs.channels();c++)
+			for( unsigned int h=0;h<output_blobs.height();h++)
+				for( unsigned int w=0;w<output_blobs.width();w++)
+				{
+					if( m_data_mean.count() != 0 ) /* use mean file */
+						for_subs_buffer = m_data_mean.cpu_data()[ m_data_mean.offset(0,c,h,w)];
+					else if( !m_subs_values.empty()) /* use mean value */
+						for_subs_buffer  =  m_subs_values[c];
+					else /* do nothing */
+						for_subs_buffer = 0;
+
+					output_blobs.mutable_cpu_data()[output_blobs.offset(n,c,h,w)]=
+						m_scale_factor*((float)(unsigned char)input_imgs[n].data[h*m_input_width*m_input_channels+w*m_input_channels+c] 
+							- for_subs_buffer);
+				}
+
+	return true;
 }

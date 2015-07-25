@@ -27,6 +27,7 @@
 
 #include "caffe/common.hpp"
 #include "caffe/net.hpp"
+#include "caffe/blob.hpp"
 
 using caffe::Caffe;
 using caffe::Net;
@@ -138,6 +139,16 @@ class cnn_master
      */
     bool is_model_ready() const;
 
+
+	/* 
+	 * ===  FUNCTION  ======================================================================
+	 *         Name:  make_blob_form_mat
+	 *  Description:  convert the mats into blobs, transform them if specified
+	 * =====================================================================================
+	 */
+	bool make_blob_from_mat( const std::vector<cv::Mat> &input_imgs,
+							 caffe::Blob<float> &output_blobs) const;
+
     /*  no copy */
     cnn_master( const cnn_master &rhs);
     cnn_master& operator=(const cnn_master &rhs);
@@ -157,8 +168,11 @@ class cnn_master
     /* scale factor */
     float m_scale_factor;
 
-    /* substract value */
+    /* mean values */
     std::vector<float> m_subs_values;
+	
+	/* or mean image */
+    caffe::Blob<float> m_data_mean;
 };
 
 
