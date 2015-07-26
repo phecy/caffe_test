@@ -145,7 +145,7 @@ bool cnn_master::load_model( const string &deploy_file_path,    /* in : path of 
         return false;
     }
     const shared_ptr<caffe::Layer<float> > data_layer = m_network->layer_by_name("data");
-    if( !strcmp("MemoryData",data_layer->type()) )
+    if( 0!=strcmp("MemoryData",data_layer->type()) )
     {
         cout<<"--> Error, input layer should be of type MemoryData "<<endl;
         return false;
