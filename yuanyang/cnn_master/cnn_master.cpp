@@ -155,6 +155,7 @@ bool cnn_master::load_model( const string &deploy_file_path,    /* in : path of 
     {
         const shared_ptr<caffe::MemoryDataLayer<float> > me_data_layer = 
             boost::dynamic_pointer_cast<caffe::MemoryDataLayer<float> >(data_layer);
+
         m_input_channels = me_data_layer->channels();
         m_input_height = me_data_layer->height();
         m_input_width  = me_data_layer->width();

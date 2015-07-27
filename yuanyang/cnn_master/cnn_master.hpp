@@ -125,6 +125,18 @@ class cnn_master
     {
         return m_input_channels;
     }
+    void set_input_width( unsigned int w)
+    {
+        m_input_width = w;
+    }
+    void set_input_height( unsigned int h)
+    {
+        m_input_height = h;
+    }
+    void set_input_channel(unsigned int c)
+    {
+        m_input_channels = c;
+    }
 
     ~cnn_master();
 

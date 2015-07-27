@@ -107,21 +107,23 @@ string get_folder_name( const string &fullpath)
 int main( int argc, char **argv )
 {
     /*  set paths for model */
-    string model_deploy_file = "../yunc_feature.prototxt";   
-    string model_binary_file = "../yunc_feature.model";
+    string model_deploy_file = "face_deploy.prototxt";   
+    string model_binary_file = "small_max_out.caffemodel";
     string model_mean_file   = "";
 
     cnn_master cnnfeature;
     cnnfeature.load_model( model_deploy_file, model_mean_file, model_binary_file);
-    //cout<<"input should have width : "<<cnnfeature.get_input_width()<<endl;
-    //cout<<"input should have height : "<<cnnfeature.get_input_height()<<endl;
-    //cout<<"input should have channels : "<<cnnfeature.get_input_channels()<<endl;
-    //cout<<"output dimension "<<cnnfeature.get_output_dimension("norm5")<<endl;
+    cnnfeature.set_input_width( 144 );
+    cnnfeature.set_input_height(144) ;
+    cout<<"input should have width : "<<cnnfeature.get_input_width()<<endl;
+    cout<<"input should have height : "<<cnnfeature.get_input_height()<<endl;
+    cout<<"input should have channels : "<<cnnfeature.get_input_channels()<<endl;
+    cout<<"output dimension "<<cnnfeature.get_output_dimension("eltwise10")<<endl;
 
     /* 2 test on negative pair */
-    //string folder_root = "/home/yuanyang/data/face_recognition/verification/id_test/";
+    string folder_root = "/home/yuanyang/data/face_recognition/verification/validation/";
     //string folder_root = "/home/yuanyang/data/face_recognition/CASIA/casia_crop/";
-    string folder_root = "/home/yuanyang/data/face_recognition/lfw/pos/";
+    //string folder_root = "/home/yuanyang/data/face_recognition/lfw/pos/";
 
 
     bf::directory_iterator end_it;
@@ -154,16 +156,16 @@ int main( int argc, char **argv )
             if( extname != ".jpg" && extname != ".png" && extname != ".bmp")
                 continue;
 
-            Mat input_img = imread( pathname);
-            resize(input_img, input_img, Size(128,128), 0, 0);
-            cvtColor( input_img, input_img, CV_BGR2GRAY);
+            Mat input_img = imread( pathname, CV_LOAD_IMAGE_GRAYSCALE);
+            //resize(input_img, input_img, Size(128,128), 0, 0);
+            //cvtColor( input_img, input_img, CV_BGR2GRAY);
             input_imgs.push_back( input_img);
         }
         
         cout<<"folder_name is "<<folder_name<<endl;
-        cnnfeature.extract_blob( "pool5/7x7_s1", input_imgs, features);
+        cnnfeature.extract_blob( "eltwise10", input_imgs, features);
         cout<<"feature's size is "<<features.cols<<" "<<features.rows<<endl;
-        saveMatToFile( features, "lfw_pos/"+folder_name+".mat");
+        saveMatToFile( features, "idcard/"+folder_name+".mat");
 	}
     return 0;
 }
