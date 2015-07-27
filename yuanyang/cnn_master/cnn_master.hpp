@@ -148,6 +148,16 @@ class cnn_master
 	 */
 	bool make_blob_from_mat( const std::vector<cv::Mat> &input_imgs,
 							 caffe::Blob<float> &output_blobs) const;
+    
+    /* 
+     * ===  FUNCTION  ======================================================================
+     *         Name:  crop_blob
+     *  Description:  
+     * =====================================================================================
+     */
+    bool crop_blob( caffe::Blob<float> &input_blob,
+                    const unsigned int crop_width,
+                    const unsigned int crop_height);
 
     /*  no copy */
     cnn_master( const cnn_master &rhs);

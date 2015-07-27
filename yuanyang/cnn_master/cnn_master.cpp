@@ -113,7 +113,7 @@ bool cnn_master::load_model( const string &deploy_file_path,    /* in : path of 
     /* by default use GPU 0 */
     unsigned int device_id = 0;
     Caffe::SetDevice( device_id );
-    Caffe::set_mode( Caffe::GPU);   /* if it dosen't have GPU, will use CPU instead */
+    Caffe::set_mode( Caffe::CPU);   /* if it dosen't have GPU, will use CPU instead */
 
     /* --------------- loading---------------*/
     m_network = NULL;
@@ -124,7 +124,7 @@ bool cnn_master::load_model( const string &deploy_file_path,    /* in : path of 
         return false;
     }
     m_network->CopyTrainedLayersFrom(model_file_path);
-    cout<<"Load ing model file done "<<endl;
+    cout<<"Loading model file done "<<endl;
 
     /* set input image size */
     /* binary mean should be already loaded( it's alse written in the file deploy_file_path)
@@ -134,6 +134,7 @@ bool cnn_master::load_model( const string &deploy_file_path,    /* in : path of 
     
     if( bf::exists( mean_file_path) )
     {
+        cout<<"Mean file exists, loading ..."<<endl;
         caffe::ReadProtoFromBinaryFileOrDie(mean_file_path.c_str(), &blob_proto);
         m_data_mean.FromProto(blob_proto);
     }
@@ -158,15 +159,27 @@ bool cnn_master::load_model( const string &deploy_file_path,    /* in : path of 
         m_input_height = me_data_layer->height();
         m_input_width  = me_data_layer->width();
 
-        // should be the same with mean_file if it's set
+        // sometimes we will have a mean_file which is larger than the actual input size
+        // (eg, we have a mean file 256x256, but we crop the 227x227 from the image during 
+        // the training process. but during test phase, we need to crop the same size of mean_file
+        // for substraction ~~
         if( !mean_file_path.empty())
         {
-            if( m_input_width != m_data_mean.width() ||
-                m_input_height != m_data_mean.height() ||
-                m_input_channels != m_data_mean.channels())
+            if( m_input_channels != m_data_mean.channels())
             {
-                cout<<"--> Error, input_dim != mean_file_dim, check your prototxt and meanfile"<<endl;
+                cout<<"--> Error, input_channels != mean_file_channels, check your prototxt and meanfile "<<endl;
                 return false;
+            }
+            if( m_input_width  > m_data_mean.width() || m_input_height > m_data_mean.height() )
+            {
+                cout<<"--> Errorm, make sure (input_width <= mean_file_width) && (input_height <= mean_file_height) "<<endl;
+                return false;
+            }
+            if( m_input_width < m_data_mean.width() || m_input_height < m_data_mean.height() )
+            {
+                cout<<"Info: crop the mean_file to the same size as input defined in prorotxt"<<endl;
+                m_input_width = m_data_mean.width();
+                m_input_height = m_data_mean.height();
             }
         }
     }
@@ -431,4 +444,32 @@ bool cnn_master::make_blob_from_mat( const std::vector<cv::Mat> &input_imgs,
 				}
 
 	return true;
+}
+
+
+bool cnn_master::crop_blob( caffe::Blob<float> &input_blob,
+                    const unsigned int crop_width,
+                    const unsigned int crop_height)
+{
+    if( input_blob.width() < crop_width || input_blob.height() < crop_height)
+    {
+        cout<<"--> Error , crop_size less than input size "<<endl;
+        return false;
+    }
+    caffe::Blob<float> buffer_blob;
+    buffer_blob.Reshape( 1, input_blob.channels(), crop_height, crop_width );
+
+    const int offset_h = (input_blob.height() - crop_height)/2;
+    const int offset_w = (input_blob.width() - crop_width)/2;
+
+	for( unsigned int n=0; n<buffer_blob.num(); n++)
+		for( unsigned int c=0;c<buffer_blob.channels();c++)
+			for( unsigned int h=0;h<buffer_blob.height();h++)
+				for( unsigned int w=0;w<buffer_blob.width();w++)
+                {
+					buffer_blob.mutable_cpu_data()[buffer_blob.offset(n,c,h,w)]= input_blob.cpu_data()[input_blob.offset(n,c,h+offset_h,w+offset_w)];
+                }
+    
+    input_blob.CopyFrom( buffer_blob, true, true);
+    return true;
 }

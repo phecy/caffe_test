@@ -1,0 +1,19 @@
+net: "yuanyang/face_verfiry/small_max_out/train_val.prototxt"
+test_iter: 4988
+test_interval: 5000
+test_initialization: false
+
+base_lr: 0.0005
+lr_policy: "fixed"
+
+gamma: 0.000005
+power: 0.75
+
+display: 100
+max_iter: 2000000
+momentum: 0.9
+weight_decay: 0.0005
+snapshot: 10000
+
+snapshot_prefix: "yuanyang/face_verfiry/casia_net/small_maxout_stage2_"
+solver_mode: GPU

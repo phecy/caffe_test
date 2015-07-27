@@ -82,14 +82,14 @@ bool load_map( T &codebook,
 int main( int argc, char **argv )
 {	
 	/*  映射文件表 */
-	map<int,string> label_to_class;
-	map<string,int> class_to_label;
-	if(!load_map( label_to_class, "label_to_class_map.data") ||
-		!load_map( class_to_label, "class_to_label_map.data"))
-	{
-		cout<<"can not load map data"<<endl;
-		return -3;
-	}
+	//map<int,string> label_to_class;
+	//map<string,int> class_to_label;
+	//if(!load_map( label_to_class, "label_to_class_map.data") ||
+	//	!load_map( class_to_label, "class_to_label_map.data"))
+	//{
+	//	cout<<"can not load map data"<<endl;
+	//	return -3;
+	//}
 
 	/*  模型路径 */
 	//string model_deploy_file = "../deploy_license_2.prototxt";   
@@ -97,9 +97,9 @@ int main( int argc, char **argv )
 	//string model_binary_file = "../license_char_model_2.caffemodel";
     
     
-	string model_deploy_file = "";   
-	string model_mean_file   = "";
-	string model_binary_file = "";
+	string model_deploy_file = string(argv[1]);   
+	string model_binary_file = string(argv[2]);
+	string model_mean_file   = string(argv[3]);
 
 	cnn_master cnnfeature;
 	cnnfeature.load_model( model_deploy_file, model_mean_file, model_binary_file);
@@ -108,11 +108,9 @@ int main( int argc, char **argv )
 	cout<<"input should have channels : "<<cnnfeature.get_input_channels()<<endl;
 
 
-	Mat input_image = imread( argv[1], CV_LOAD_IMAGE_GRAYSCALE);
-    //input_image = 255 -input_image;
+	Mat input_image = imread( argv[4] );
 
     //cv::normalize( input_image, input_image, 0, 255, CV_MINMAX);
-    input_image = resize_to_fixed(input_image, Size(20,44), Size(22,46));
 	vector<Mat> imagelists;
 	imagelists.push_back( input_image);
 	//imagelists.push_back( input_image);
@@ -124,16 +122,16 @@ int main( int argc, char **argv )
 	//imagelists.push_back( input_image);
     
     /*  show feature*/
-    Mat show_feature;
-    cnnfeature.extract_blob("fc6", imagelists, show_feature);
-    cout<<"fc6 :\n"<<show_feature<<endl;
+    //Mat show_feature;
+    //cnnfeature.extract_blob("fc6", imagelists, show_feature);
+    //cout<<"fc6 :\n"<<show_feature<<endl;
     
 
 	/* 1 每个图片返回一个类标 */
 	Mat predict_label;
 	cnnfeature.get_class_label( imagelists, predict_label);
 	cout<<"predict to label "<<predict_label.at<float>(0,0)<<" with confidence "<<predict_label.at<float>(0,1)<<endl;
-	cout<<"convert the label to string -> "<<label_to_class[int(predict_label.at<float>(0,0))]<<endl;
+	//cout<<"convert the label to string -> "<<label_to_class[int(predict_label.at<float>(0,0))]<<endl;
 
 	/* 2 每个图片返回top_N的类标和对应的置信度 */
 	vector<Mat> labelconfs;
