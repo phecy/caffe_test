@@ -141,18 +141,21 @@ string get_folder_name( const string &fullpath)
 int main( int argc, char **argv )
 {
     /*  set paths for model */
-    string model_deploy_file = "face_deploy.prototxt";   
-    string model_binary_file = "small_max_out.caffemodel";
+    string model_deploy_file = "sensetime.prototxt";   
+    string model_binary_file = "sensetime.model";
     string model_mean_file   = "";
 
     cnn_master cnnfeature;
     cnnfeature.load_model( model_deploy_file, model_mean_file, model_binary_file);
+
+    cnnfeature.set_input_width(256);
+    cnnfeature.set_input_height(256);
+    cnnfeature.set_input_channel(3);
+
     cout<<"input should have width : "<<cnnfeature.get_input_width()<<endl;
     cout<<"input should have height : "<<cnnfeature.get_input_height()<<endl;
     cout<<"input should have channels : "<<cnnfeature.get_input_channels()<<endl;
-    cout<<"output dimension "<<cnnfeature.get_output_dimension("eltwise10")<<endl;
-    cnnfeature.set_input_width(144);
-    cnnfeature.set_input_height(144);
+    cout<<"output dimension "<<cnnfeature.get_output_dimension("output")<<endl;
 
     /* 2 test on negative pair */
     //string folder_root = "/home/yuanyang/data/face_recognition/verification/id_test/";
@@ -166,8 +169,12 @@ int main( int argc, char **argv )
 
     //for( unsigned long i=0;i<train_file.size();i++)
     //{
-        cv::Mat img1  = cv::imread( argv[1], CV_LOAD_IMAGE_GRAYSCALE );
-        cv::Mat img2  = cv::imread( argv[2], CV_LOAD_IMAGE_GRAYSCALE );
+        cv::Mat img1  = cv::imread( argv[1] );
+        cv::Mat img2  = cv::imread( argv[2] );
+
+        cv::resize( img1, img1, Size(256,256), 0, 0);
+        cv::resize( img2, img2, Size(256,256), 0, 0);
+
        // cout<<"label is "<<train_file[i].label<<endl;
 
         vector<Mat> imgs;
@@ -175,10 +182,12 @@ int main( int argc, char **argv )
         imgs.push_back(img2);
 
         Mat features;
-        cnnfeature.extract_blob( "eltwise10", imgs, features);
+        cnnfeature.extract_blob( "output", imgs, features);
         imshow("img1", img1);
         imshow("img2", img2);
 
+        cout<<"feature dim "<<cnnfeature.get_output_dimension("output")<<endl;
+        cout<<"feature : "<<features<<endl;
         //cout<<"feature dim "<<features.cols<<" "<<features.rows<<endl;
         cout<<"distance is "<<cosine_similarity( features.row(0), features.row(1))<<endl;
         waitKey(0);

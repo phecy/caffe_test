@@ -113,7 +113,7 @@ bool cnn_master::load_model( const string &deploy_file_path,    /* in : path of 
     /* by default use GPU 0 */
     unsigned int device_id = 0;
     Caffe::SetDevice( device_id );
-    Caffe::set_mode( Caffe::CPU);   /* if it dosen't have GPU, will use CPU instead */
+    Caffe::set_mode( Caffe::GPU);   /* if it dosen't have GPU, will use CPU instead */
 
     /* --------------- loading---------------*/
     m_network = NULL;
@@ -185,7 +185,7 @@ bool cnn_master::load_model( const string &deploy_file_path,    /* in : path of 
         }
     }
     
-    m_batch_size = 16;
+    m_batch_size = 32;
     return true;
 }
 

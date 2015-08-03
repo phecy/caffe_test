@@ -1,0 +1,19 @@
+net: "yuanyang/face_verfiry/small_max_out/fine_tuning_train_only.prototxt"
+test_iter: 3457
+test_interval: 5000
+test_initialization: true
+
+base_lr: 0.0001
+lr_policy: "fixed"
+
+gamma: 0.000005
+power: 0.75
+
+display: 100
+max_iter: 2000000
+momentum: 0.9
+weight_decay: 0.0005
+snapshot: 5000
+
+snapshot_prefix: "yuanyang/face_verfiry/small_max_out/small_maxout_fine_diaosi_"
+solver_mode: GPU

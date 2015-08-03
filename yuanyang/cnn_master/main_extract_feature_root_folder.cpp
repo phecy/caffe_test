@@ -121,8 +121,8 @@ int main( int argc, char **argv )
     cout<<"output dimension "<<cnnfeature.get_output_dimension("eltwise10")<<endl;
 
     /* 2 test on negative pair */
-    string folder_root = "/home/yuanyang/data/face_recognition/verification/validation/";
-    //string folder_root = "/home/yuanyang/data/face_recognition/CASIA/casia_crop/";
+    //string folder_root = "/home/yuanyang/data/face_recognition/verification/validation/";
+    string folder_root = "/home/yuanyang/data/face_recognition/diaosi_crop/";
     //string folder_root = "/home/yuanyang/data/face_recognition/lfw/pos/";
 
 
@@ -165,7 +165,7 @@ int main( int argc, char **argv )
         cout<<"folder_name is "<<folder_name<<endl;
         cnnfeature.extract_blob( "eltwise10", input_imgs, features);
         cout<<"feature's size is "<<features.cols<<" "<<features.rows<<endl;
-        saveMatToFile( features, "idcard/"+folder_name+".mat");
+        saveMatToFile( features, "diaosi/"+folder_name+".mat");
 	}
     return 0;
 }
