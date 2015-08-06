@@ -21,6 +21,7 @@ add_executable(test_just_one main_one.cpp)
 add_executable(extract_feature main_extract_feature_demo.cpp)
 add_executable(extract_feature_root_folder main_extract_feature_root_folder.cpp)
 add_executable(compare_face main_compare_face.cpp)
+add_executable(jb_test main_joint_bayesian_test.cpp)
 
 add_library( cnn_master cnn_master.hpp cnn_master.cpp)
 add_library( misc misc.hpp misc.cpp)
@@ -36,4 +37,5 @@ target_link_libraries( test_just_one cnn_master ${Caffe_LIBRARIES} ${OpenCV_LIBS
 target_link_libraries( extract_feature cnn_master ${Caffe_LIBRARIES} ${OpenCV_LIBS} ${Boost_LIBRARIES} )
 target_link_libraries( extract_feature_root_folder cnn_master ${Caffe_LIBRARIES} ${OpenCV_LIBS} ${Boost_LIBRARIES} )
 target_link_libraries( compare_face cnn_master ${Caffe_LIBRARIES} ${OpenCV_LIBS} ${Boost_LIBRARIES} )
+target_link_libraries( jb_test cnn_master ${Caffe_LIBRARIES} ${OpenCV_LIBS} ${Boost_LIBRARIES} )
 

@@ -483,3 +483,9 @@ layer {
         operation: MAX
     }
 }
+layer {
+    name: "output"
+    type: "GRN"
+    bottom: "eltwise10"
+    top: "output"
+}
