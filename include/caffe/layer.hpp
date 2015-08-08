@@ -86,7 +86,7 @@ class Layer {
       const vector<Blob<Dtype>*>& top) {}
 
   /**
-   * @brief Adjust the shapes of top blobs and internal buffers to accomodate
+   * @brief Adjust the shapes of top blobs and internal buffers to accommodate
    *        the shapes of the bottom blobs.
    *
    * @param bottom the input blobs, with the requested input shapes
@@ -95,7 +95,7 @@ class Layer {
    * This method should reshape top blobs as needed according to the shapes
    * of the bottom (input) blobs, as well as reshaping any internal buffers
    * and making any other necessary adjustments so that the layer can
-   * accomodate the bottom blobs.
+   * accommodate the bottom blobs.
    */
   virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) = 0;
@@ -139,7 +139,7 @@ class Layer {
    * (Backward_cpu or Backward_gpu) to compute the bottom blob diffs given the
    * top blob diffs.
    *
-   * Your layer should implement Forward_cpu and (optionally) Forward_gpu.
+   * Your layer should implement Backward_cpu and (optionally) Backward_gpu.
    */
   inline void Backward(const vector<Blob<Dtype>*>& top,
       const vector<bool>& propagate_down,
@@ -406,6 +406,7 @@ template <typename Dtype>
 inline Dtype Layer<Dtype>::Forward(const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
   Dtype loss = 0;
+  Reshape(bottom, top);
   switch (Caffe::mode()) {
   case Caffe::CPU:
     Forward_cpu(bottom, top);
