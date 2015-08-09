@@ -1,0 +1,14 @@
+net: "yuanyang/wine_labels/train_val.prototxt"
+test_iter: 40
+test_interval: 500
+base_lr: 0.001
+lr_policy: "step"
+gamma: 0.8
+stepsize: 500
+display: 100
+max_iter: 50000
+momentum: 0.9
+weight_decay: 0.0005
+snapshot: 500
+snapshot_prefix: "yuanyang/wine_labels/9kacha_wine_label_"
+solver_mode: GPU

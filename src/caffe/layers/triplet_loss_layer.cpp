@@ -101,7 +101,7 @@ void TripletLossLayer<Dtype>::Forward_cpu(
         diff_an_.cpu_data() + (i*channels), diff_an_.cpu_data() + (i*channels));
     Dtype mdist = sampleW*std::max(margin + dist_sq_ap_.cpu_data()[i] - dist_sq_an_.cpu_data()[i], Dtype(0.0));
     loss += mdist;
-    if(mdist==Dtype(0)){
+    if(mdist < Dtype(1e-9)){
     	//dist_binary_.mutable_cpu_data()[i] = Dtype(0);
     	//prepare for backward pass
     	caffe_set(channels, Dtype(0), diff_ap_.mutable_cpu_data() + (i*channels));
