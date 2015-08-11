@@ -1,14 +1,40 @@
-name: "test"
+name: "maxout_deeper"
 layer {
   name: "data"
-  type: "MemoryData"
+  type: "Data"
   top: "data"
   top: "label"
-  memory_data_param {
-    batch_size: 1
-    channels: 3
-    height: 256
-    width: 256
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    mirror: true
+    scale: 0.00390625
+    crop_size: 256
+  }
+  data_param {
+    source: "yuanyang/face_verfiry/train_lmdb/"
+    batch_size: 32
+    backend: LMDB
+  }
+}
+layer {
+  name: "data"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    mirror: false
+    scale: 0.00390625
+    crop_size: 256
+  }
+  data_param {
+    source: "yuanyang/face_verfiry/test_lmdb/"
+    batch_size: 10
+    backend: LMDB
   }
 }
 layer {
@@ -16,6 +42,14 @@ layer {
   type: "Convolution"
   bottom: "data"
   top: "conv01_data1_a"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 32
     pad: 3
@@ -36,6 +70,14 @@ layer {
   type: "Convolution"
   bottom: "data"
   top: "conv01_data1_b"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 32
     pad: 3
@@ -77,6 +119,14 @@ layer {
   type: "Convolution"
   bottom: "pool0_data1"
   top: "conv11_data1_a"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 32
     pad: 1
@@ -97,6 +147,14 @@ layer {
   type: "Convolution"
   bottom: "pool0_data1"
   top: "conv11_data1_b"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 32
     pad: 1
@@ -127,6 +185,14 @@ layer {
   type: "Convolution"
   bottom: "conv11_data1"
   top: "conv12_data1_a"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 32
     pad: 1
@@ -147,6 +213,14 @@ layer {
   type: "Convolution"
   bottom: "conv11_data1"
   top: "conv12_data1_b"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 32
     pad: 1
@@ -177,6 +251,14 @@ layer {
   type: "Convolution"
   bottom: "conv12_data1"
   top: "conv13_data1_a"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 64
     pad: 1
@@ -197,6 +279,14 @@ layer {
   type: "Convolution"
   bottom: "conv12_data1"
   top: "conv13_data1_b"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 64
     pad: 1
@@ -227,6 +317,14 @@ layer {
   type: "Convolution"
   bottom: "conv13_data1"
   top: "conv14_data1_a"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 64
     pad: 1
@@ -247,6 +345,14 @@ layer {
   type: "Convolution"
   bottom: "conv13_data1"
   top: "conv14_data1_b"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 64
     pad: 1
@@ -288,6 +394,14 @@ layer {
   type: "Convolution"
   bottom: "pool1_data1"
   top: "conv21_data1_a"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 96
     pad: 1
@@ -308,6 +422,14 @@ layer {
   type: "Convolution"
   bottom: "pool1_data1"
   top: "conv21_data1_b"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 96
     pad: 1
@@ -338,6 +460,14 @@ layer {
   type: "Convolution"
   bottom: "conv21_data1"
   top: "conv22_data1_a"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 96
     pad: 1
@@ -358,6 +488,14 @@ layer {
   type: "Convolution"
   bottom: "conv21_data1"
   top: "conv22_data1_b"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 96
     pad: 1
@@ -388,6 +526,14 @@ layer {
   type: "Convolution"
   bottom: "conv22_data1"
   top: "conv23_data1_a"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 128
     pad: 1
@@ -408,6 +554,14 @@ layer {
   type: "Convolution"
   bottom: "conv22_data1"
   top: "conv23_data1_b"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 128
     pad: 1
@@ -438,6 +592,14 @@ layer {
   type: "Convolution"
   bottom: "conv23_data1"
   top: "conv24_data1_a"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 128
     pad: 1
@@ -458,6 +620,14 @@ layer {
   type: "Convolution"
   bottom: "conv23_data1"
   top: "conv24_data1_b"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 128
     pad: 1
@@ -488,6 +658,14 @@ layer {
   type: "Convolution"
   bottom: "conv24_data1"
   top: "conv25_data1_a"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 160
     pad: 1
@@ -508,6 +686,14 @@ layer {
   type: "Convolution"
   bottom: "conv24_data1"
   top: "conv25_data1_b"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 160
     pad: 1
@@ -538,6 +724,14 @@ layer {
   type: "Convolution"
   bottom: "conv25_data1"
   top: "conv26_data1_a"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 160
     pad: 1
@@ -558,6 +752,14 @@ layer {
   type: "Convolution"
   bottom: "conv25_data1"
   top: "conv26_data1_b"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 160
     pad: 1
@@ -599,6 +801,14 @@ layer {
   type: "Convolution"
   bottom: "pool2_data1"
   top: "conv31_data1_a"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 320
     pad: 1
@@ -619,6 +829,14 @@ layer {
   type: "Convolution"
   bottom: "pool2_data1"
   top: "conv31_data1_b"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 320
     pad: 1
@@ -649,6 +867,14 @@ layer {
   type: "Convolution"
   bottom: "conv31_data1"
   top: "conv32_data1_a"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 320
     pad: 1
@@ -669,6 +895,14 @@ layer {
   type: "Convolution"
   bottom: "conv31_data1"
   top: "conv32_data1_b"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 320
     pad: 1
@@ -699,6 +933,14 @@ layer {
   type: "Convolution"
   bottom: "conv32_data1"
   top: "conv33_data1_a"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 320
     pad: 1
@@ -719,6 +961,14 @@ layer {
   type: "Convolution"
   bottom: "conv32_data1"
   top: "conv33_data1_b"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 320
     pad: 1
@@ -749,6 +999,14 @@ layer {
   type: "Convolution"
   bottom: "conv33_data1"
   top: "conv34_data1_a"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 320
     pad: 1
@@ -769,6 +1027,14 @@ layer {
   type: "Convolution"
   bottom: "conv33_data1"
   top: "conv34_data1_b"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 320
     pad: 1
@@ -810,6 +1076,14 @@ layer {
   type: "Convolution"
   bottom: "pool4_data1"
   top: "conv41_data1_a"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 256
     pad: 2
@@ -830,6 +1104,14 @@ layer {
   type: "Convolution"
   bottom: "pool4_data1"
   top: "conv41_data1_b"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 256
     pad: 2
@@ -860,6 +1142,14 @@ layer {
   type: "Convolution"
   bottom: "conv41_data1"
   top: "conv42_data1_a"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 256
     pad: 2
@@ -880,6 +1170,14 @@ layer {
   type: "Convolution"
   bottom: "conv41_data1"
   top: "conv42_data1_b"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 256
     pad: 2
@@ -925,6 +1223,14 @@ layer {
   type: "InnerProduct"
   bottom: "conv42_data1_dropout"
   top: "local4_data1"
+  param{
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param{
+    lr_mult: 2
+    decay_mult: 0
+  }
   inner_product_param {
     num_output: 256
     weight_filler {
@@ -945,4 +1251,45 @@ layer {
   dropout_param {
     dropout_ratio: 0.5
   }
+}
+layer {
+  name: "classfy1"
+  type: "InnerProduct"
+  bottom: "output"
+  top: "classfy1"
+  param {
+    lr_mult: 10
+    decay_mult: 10
+  }
+  param {
+    lr_mult: 20
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 14658
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.1
+    }
+  }
+}
+layer {
+	name: "loss1"
+	type: "SoftmaxWithLoss"
+	bottom: "classfy1"
+	bottom: "label"
+}
+layer {
+	name: "accuracy"
+	type: "Accuracy"
+	bottom: "classfy1"
+	bottom: "label"
+	top: "accuracy"
+	include {
+		phase: TEST
+	}
 }

@@ -193,8 +193,8 @@ int main( int argc, char **argv )
     
 
     /* 2 test on negative pair */
-    string folder_root1 = "/home/yuanyang/data/face_recognition/verification/validation/card/";
-    string folder_root2 = "/home/yuanyang/data/face_recognition/verification/validation/real/";
+    string folder_root1 = "/home/yuanyang/data/face_recognition/verification/1/";
+    string folder_root2 = "/home/yuanyang/data/face_recognition/verification/2/";
 
     //string folder_root1 = "/home/yuanyang/libs/caffe/yuanyang/cnn_master/build/pci_staff/real/";
     //string folder_root2 = "/home/yuanyang/libs/caffe/yuanyang/cnn_master/build/pci_staff/card/";
