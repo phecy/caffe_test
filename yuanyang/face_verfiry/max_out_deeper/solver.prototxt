@@ -15,5 +15,5 @@ momentum: 0.9
 weight_decay: 0.0005
 snapshot: 10000
 
-snapshot_prefix: "yuanyang/face_verfiry/max_out_deeper/long_maxout_stage_2_"
+snapshot_prefix: "yuanyang/face_verfiry/max_out_deeper/long_maxout_stage_3_"
 solver_mode: GPU
