@@ -1,0 +1,19 @@
+net: "yuanyang/face_verfiry/triplet_loss_ext/train_val.prototxt"
+test_iter: 4988
+test_interval: 5000
+test_initialization: false
+
+base_lr: 0.001
+lr_policy: "fixed"
+
+gamma: 0.000005
+power: 0.75
+
+display: 10
+max_iter: 2000000
+momentum: 0.9
+weight_decay: 0.0005
+snapshot: 10000
+
+snapshot_prefix: "yuanyang/face_verfiry/triplet_loss_ext/small_maxout_triplet_"
+solver_mode: CPU

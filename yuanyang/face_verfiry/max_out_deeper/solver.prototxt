@@ -13,7 +13,7 @@ display: 100
 max_iter: 2000000
 momentum: 0.9
 weight_decay: 0.0005
-snapshot: 10000
+snapshot: 5000
 
-snapshot_prefix: "yuanyang/face_verfiry/max_out_deeper/long_maxout_stage_3_"
+snapshot_prefix: "yuanyang/face_verfiry/max_out_deeper/long_maxout_stage_4_"
 solver_mode: GPU

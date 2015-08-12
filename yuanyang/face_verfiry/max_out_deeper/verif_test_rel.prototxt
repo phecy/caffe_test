@@ -1244,9 +1244,18 @@ layer {
   }
 }
 layer {
+    name: "output_prelu"
+    type: "PReLU" 
+    bottom: "local4_data1"
+    top: "output"
+    param {
+        decay_mult: 0
+    }
+}
+layer {
   name: "output"
   type: "Dropout"
-  bottom: "local4_data1"
+  bottom: "output"
   top: "output"
   dropout_param {
     dropout_ratio: 0.5
