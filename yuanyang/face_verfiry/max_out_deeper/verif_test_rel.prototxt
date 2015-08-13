@@ -416,11 +416,11 @@ layer {
   bottom: "loss1_prelu"
   top: "loss1_fc"
   param {
-    lr_mult: 10
+    lr_mult: 1
     decay_mult: 1
   }
   param {
-    lr_mult: 20
+    lr_mult: 2
     decay_mult: 0
   }
   inner_product_param {
@@ -459,11 +459,11 @@ layer {
   bottom: "loss1_fc_prelu"
   top: "loss1_classfy"
   param {
-    lr_mult: 10
+    lr_mult: 1
     decay_mult: 10
   }
   param {
-    lr_mult: 20
+    lr_mult: 2
     decay_mult: 0
   }
   inner_product_param {
@@ -935,11 +935,11 @@ layer {
   bottom: "loss2_prelu"
   top: "loss2_fc"
   param {
-    lr_mult: 10
+    lr_mult: 1
     decay_mult: 1
   }
   param {
-    lr_mult: 20
+    lr_mult: 2
     decay_mult: 0
   }
   inner_product_param {
@@ -978,11 +978,11 @@ layer {
   bottom: "loss2_fc_prelu"
   top: "loss2_classfy"
   param {
-    lr_mult: 10
+    lr_mult: 1
     decay_mult: 10
   }
   param {
-    lr_mult: 20
+    lr_mult: 2
     decay_mult: 0
   }
   inner_product_param {
