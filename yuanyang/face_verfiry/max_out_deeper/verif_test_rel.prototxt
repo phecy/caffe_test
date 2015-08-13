@@ -389,6 +389,116 @@ layer {
     stride: 2
   }
 }
+# add another supervised signal ~~~
+layer {
+    name : "loss1_pool"
+    type : "Pooling"
+    bottom: "pool1_data1"
+    top : "loss1_pool"
+    pooling_param {
+        pool: AVE
+        kernel_size: 4
+        stride: 4
+    }
+}
+layer {
+    name: "loss1_prelu"
+    type: "PReLU" 
+    bottom: "loss1_pool"
+    top: "loss1_prelu"
+    param {
+        decay_mult: 0
+    }
+}
+layer {
+  name: "loss1_fc"
+  type: "InnerProduct"
+  bottom: "loss1_prelu"
+  top: "loss1_fc"
+  param {
+    lr_mult: 10
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 20
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 256
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.1
+    }
+  }
+}
+layer {
+    name: "loss1fc_prelu"
+    type: "PReLU" 
+    bottom: "loss1_fc"
+    top: "loss1_fc_prelu"
+    param {
+        decay_mult: 0
+    }
+}
+layer {
+  name: "loss1_drop"
+  type: "Dropout"
+  bottom: "loss1_fc_prelu"
+  top: "loss1_fc_prelu"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+layer {
+  name: "loss1_classfy"
+  type: "InnerProduct"
+  bottom: "loss1_fc_prelu"
+  top: "loss1_classfy"
+  param {
+    lr_mult: 10
+    decay_mult: 10
+  }
+  param {
+    lr_mult: 20
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 14658
+    weight_filler {
+      type: "gaussian"
+      std: 0.001
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.1
+    }
+  }
+}
+layer {
+	name: "loss1"
+	type: "SoftmaxWithLoss"
+	bottom: "loss1_classfy"
+	bottom: "label"
+    top: "loss1"
+    loss_weight: 0.3
+}
+layer {
+	name: "loss1_accuracy"
+	type: "Accuracy"
+	bottom: "loss1_classfy"
+	bottom: "label"
+	top: "loss1_accuracy"
+	include {
+		phase: TEST
+	}
+}
+
+
+
 layer {
   name: "conv21_data1_a"
   type: "Convolution"
@@ -653,6 +763,8 @@ layer {
     operation: MAX
   }
 }
+
+
 layer {
   name: "conv25_data1_a"
   type: "Convolution"
@@ -796,6 +908,114 @@ layer {
     stride: 2
   }
 }
+# add another supervised signal ~~~
+layer {
+    name : "loss2_pool"
+    type : "Pooling"
+    bottom: "pool2_data1"
+    top : "loss2_pool"
+    pooling_param {
+        pool: AVE
+        kernel_size: 4
+        stride: 4
+    }
+}
+layer {
+    name: "loss2_prelu"
+    type: "PReLU" 
+    bottom: "loss2_pool"
+    top: "loss2_prelu"
+    param {
+        decay_mult: 0
+    }
+}
+layer {
+  name: "loss2_fc"
+  type: "InnerProduct"
+  bottom: "loss2_prelu"
+  top: "loss2_fc"
+  param {
+    lr_mult: 10
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 20
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 256
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.1
+    }
+  }
+}
+layer {
+    name: "loss2fc_prelu"
+    type: "PReLU" 
+    bottom: "loss2_fc"
+    top: "loss2_fc_prelu"
+    param {
+        decay_mult: 0
+    }
+}
+layer {
+  name: "loss2_drop"
+  type: "Dropout"
+  bottom: "loss2_fc_prelu"
+  top: "loss2_fc_prelu"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+layer {
+  name: "loss2_classfy"
+  type: "InnerProduct"
+  bottom: "loss2_fc_prelu"
+  top: "loss2_classfy"
+  param {
+    lr_mult: 10
+    decay_mult: 10
+  }
+  param {
+    lr_mult: 20
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 14658
+    weight_filler {
+      type: "gaussian"
+      std: 0.001
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.1
+    }
+  }
+}
+layer {
+	name: "loss2"
+	type: "SoftmaxWithLoss"
+	bottom: "loss2_classfy"
+	bottom: "label"
+    top: "loss2"
+    loss_weight: 0.3
+}
+layer {
+	name: "loss2_accuracy"
+	type: "Accuracy"
+	bottom: "loss2_classfy"
+	bottom: "label"
+	top: "loss2_accuracy"
+	include {
+		phase: TEST
+	}
+}
+
 layer {
   name: "conv31_data1_a"
   type: "Convolution"
@@ -1287,13 +1507,14 @@ layer {
   }
 }
 layer {
-	name: "loss1"
+	name: "loss_final"
 	type: "SoftmaxWithLoss"
 	bottom: "classfy1"
 	bottom: "label"
+    top: "loss_final"
 }
 layer {
-	name: "accuracy"
+	name: "accuracy_final"
 	type: "Accuracy"
 	bottom: "classfy1"
 	bottom: "label"
