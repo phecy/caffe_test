@@ -1341,7 +1341,7 @@ layer {
   }
 }
 layer {
-  name: "loss1/relu_conv"
+  name: "loss1_relu_conv"
   type: "ReLU"
   bottom: "loss1/conv"
   top: "loss1/conv"
@@ -1395,11 +1395,11 @@ layer {
   bottom: "loss1_prelu"
   top: "loss1_classfy"
   param {
-    lr_mult: 10
+    lr_mult: 1
     decay_mult: 10
   }
   param {
-    lr_mult: 20
+    lr_mult: 2
     decay_mult: 0
   }
   inner_product_param {
@@ -2170,11 +2170,11 @@ layer {
   bottom: "loss2_prelu"
   top: "loss2_classfy"
   param {
-    lr_mult: 10
+    lr_mult: 1
     decay_mult: 10
   }
   param {
-    lr_mult: 20
+    lr_mult: 2
     decay_mult: 0
   }
   inner_product_param {
@@ -2880,11 +2880,11 @@ layer {
   bottom: "pool5/7x7_s1"
   top: "output"
   param {
-    lr_mult: 10
+    lr_mult: 1
     decay_mult: 1
   }
   param {
-    lr_mult: 20
+    lr_mult: 2
     decay_mult: 0
   }
   inner_product_param {
@@ -2923,11 +2923,11 @@ layer {
   bottom: "output"
   top: "output_classfy"
   param {
-    lr_mult: 10
+    lr_mult: 1
     decay_mult: 10
   }
   param {
-    lr_mult: 20
+    lr_mult: 2
     decay_mult: 0
   }
   inner_product_param {
