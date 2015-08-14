@@ -2867,7 +2867,7 @@ layer {
   name: "pool5/7x7_s1"
   type: "Pooling"
   bottom: "inception_5b/output"
-  top: "pool5/7x7_s1"
+  top: "output"
   pooling_param {
     pool: AVE
     kernel_size: 4
@@ -2875,35 +2875,10 @@ layer {
   }
 }
 layer {
-  name: "output"
-  type: "InnerProduct"
-  bottom: "pool5/7x7_s1"
-  top: "output"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  inner_product_param {
-    num_output: 256
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0.1
-    }
-  }
-}
-layer {
     name: "output_prelu"
     type: "PReLU" 
     bottom: "output"
-    top: "output"
+    top: "output_prelu"
     param {
         decay_mult: 0
     }
@@ -2911,16 +2886,16 @@ layer {
 layer {
     name : "output_drop"
     type : "Dropout"
-    bottom: "output"
-    top: "output"
+    bottom: "output_prelu"
+    top: "output_prelu"
 	dropout_param{
 		dropout_ratio: 0.5
     }
 }
 layer {
-  name: "output_classfy"
+  name: "final_classfy"
   type: "InnerProduct"
-  bottom: "output"
+  bottom: "output_prelu"
   top: "output_classfy"
   param {
     lr_mult: 1

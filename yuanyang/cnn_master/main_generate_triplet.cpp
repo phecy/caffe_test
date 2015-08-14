@@ -5,6 +5,8 @@
 #include <time.h>
 #include <stdlib.h>
 #include <fstream>
+#include <sstream>
+#include <set>
 
 #include "boost/filesystem.hpp"
 #include "boost/lambda/bind.hpp"
@@ -14,12 +16,24 @@
 #include "opencv2/imgproc/imgproc.hpp"
 
 #include "cnn_master.hpp"
+#include "matdb.h"
 
 using namespace std;
 using namespace cv;
 
 namespace bf=boost::filesystem;
 namespace bl=boost::lambda;
+
+string form_key( int folder_index, int image_index)
+{
+    stringstream ss;
+    string folder_string;
+    string image_string;
+    ss<<folder_index;ss>>folder_string;
+    ss.clear();
+    ss<<image_index; ss>>image_string;
+    return folder_string+"_"+image_string;
+}
 
 /*  choose K from N  */
 void comb(int N, int K, vector<vector<int> > &all_combs, int len=0)
@@ -103,6 +117,9 @@ int main( int argc, char** argv)
     int num_neg_sample_per_pair = 2;
 
     ofstream output_file("namelist.txt");
+    
+    matdb my_db;
+    my_db.open_db("feature.db");
 
     vector<string> anchor_buffer;
     vector<string> pos_buffer;
@@ -149,9 +166,34 @@ int main( int argc, char** argv)
         folder_path.push_back(folder_iter->path().string());
     }
     
+    /* compute all the feature and store is  */
+    for( unsigned int i=0; i<folder_path.size();i++)
+    {
+        cout<<"processing folder : "<<folder_path[i]<<endl;   
+        vector<string> image_path;
+        get_all_image_files( folder_path[i], image_path);
+
+        vector<Mat> input_imgs;
+        for( unsigned int j=0; j<image_path.size();j++)
+        {
+            Mat im = imread( image_path[j], image_load_option);
+            input_imgs.push_back( im );
+        }
+           
+        /* compute the feature .. */
+        Mat output_feature;
+        cnnfeature.extract_blob( feature_name, input_imgs, output_feature);
+
+        /* store the feature */
+        for( unsigned int j=0; j<image_path.size();j++)
+            my_db.store_mat( form_key(i,j), output_feature.row(j));
+    }
+
+    cout<<"feature computing done "<<endl;
 
     for( unsigned int i=0; i<folder_path.size();i++)
     {
+
         cout<<"processing folder : "<<folder_path[i]<<endl;   
         vector<string> image_path;
         get_all_image_files( folder_path[i], image_path);
@@ -162,17 +204,15 @@ int main( int argc, char** argv)
         /* choose a nagetive sample for each anchor_positive pair*/
         for( unsigned int index=0;index<anchor_pos_pair.size();index++)
         {
-            Mat img1 = imread( image_path[anchor_pos_pair[index][0]], image_load_option);
-            Mat img2 = imread( image_path[anchor_pos_pair[index][1]], image_load_option);
+            set<string> used_neg_image;
 
-            vector<Mat> ap_imgs; 
-            ap_imgs.push_back(img1); 
-            ap_imgs.push_back(img2);
+            /* fetch feature, compute the distance  */
+            Mat f1,f2;
+            my_db.fetch_mat( form_key(i, anchor_pos_pair[index][0]), f1);
+            my_db.fetch_mat( form_key(i, anchor_pos_pair[index][1]), f2);
 
-            Mat ap_mat;
-            cnnfeature.extract_blob( feature_name, ap_imgs, ap_mat);
-            double ap_dis = cv::norm( ap_mat.row(0), ap_mat.row(1));
-
+            double ap_dis = cv::norm(f1, f2);
+            
             int got_matched = 0;
             int negative_people_index = i;
 
@@ -192,27 +232,34 @@ int main( int argc, char** argv)
                 /* compare 2 images at most  */
                 for( unsigned int neg_index = 0; neg_index < neg_imgs.size() && neg_index < 2; neg_index++)
                 {
-                    Mat neg_tmp_img = imread( neg_imgs[neg_index], image_load_option);
-                    vector<Mat> neg_tmp;
-                    neg_tmp.push_back( neg_tmp_img);
+                    /* feathch negative image's feature */
                     Mat neg_fea;
-                    cnnfeature.extract_blob( feature_name, neg_tmp, neg_fea);
+                    if( used_neg_image.count( form_key(negative_people_index, neg_index)) != 0 )
+                        continue;
+                    
+                    my_db.fetch_mat(form_key(negative_people_index, neg_index),neg_fea);
 
-                    double an_dis = cv::norm( ap_mat.row(0), neg_fea.row(0));
+                    double an_dis = cv::norm( f1, neg_fea);
                     if( an_dis > ap_dis && an_dis < ap_dis + margin )
                     {
+                        used_neg_image.insert( form_key(negative_people_index, neg_index));
+
                         /* add to buffer  */
                         anchor_buffer.push_back(image_path[anchor_pos_pair[index][0]]);
                         pos_buffer.push_back(image_path[anchor_pos_pair[index][1]]);
                         neg_buffer.push_back( neg_imgs[neg_index]);
 
+                        //Mat img_a,img_p,img_n;
+                        //img_a = imread( image_path[anchor_pos_pair[index][0]], image_load_option);
+                        //img_p = imread( image_path[anchor_pos_pair[index][1]], image_load_option);
+                        //img_n = imread( neg_imgs[neg_index], image_load_option);
                         //cout<<"matched "<<endl;
                         //cout<<"reading negative image "<<neg_imgs[neg_index]<<endl;
                         //cout<<"a-p dis is "<<ap_dis<<endl;
                         //cout<<"a-n dis is "<<an_dis<<endl;
-                        //imshow("anchor", img1);
-                        //imshow("pos", img2);
-                        //imshow("neg", neg_tmp_img);
+                        //imshow("anchor", img_a);
+                        //imshow("pos", img_p);
+                        //imshow("neg", img_n);
                         //waitKey(0);
 
                         if( anchor_buffer.size() >= 60)
@@ -227,6 +274,10 @@ int main( int argc, char** argv)
 
         }
     }
+    if( anchor_buffer.size() != 0)
+        commit_buffer(anchor_buffer, pos_buffer, neg_buffer, output_file);
+        
 
+    output_file.close();
     return 0;
 }

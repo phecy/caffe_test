@@ -26,6 +26,8 @@ add_executable( generate_triplet_pair main_generate_triplet.cpp)
 
 add_library( cnn_master cnn_master.hpp cnn_master.cpp)
 add_library( misc misc.hpp misc.cpp)
+add_library( matdb matdb.h matdb.cpp )
+add_library( unqlite unqlite.h unqlite.c)
 
 target_link_libraries( cnn_master ${Caffe_LIBRARIES} ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
@@ -39,5 +41,5 @@ target_link_libraries( extract_feature cnn_master ${Caffe_LIBRARIES} ${OpenCV_LI
 target_link_libraries( extract_feature_root_folder cnn_master ${Caffe_LIBRARIES} ${OpenCV_LIBS} ${Boost_LIBRARIES} )
 target_link_libraries( compare_face cnn_master ${Caffe_LIBRARIES} ${OpenCV_LIBS} ${Boost_LIBRARIES} )
 target_link_libraries( jb_test cnn_master ${Caffe_LIBRARIES} ${OpenCV_LIBS} ${Boost_LIBRARIES} )
-target_link_libraries( generate_triplet_pair cnn_master ${Caffe_LIBRARIES} ${OpenCV_LIBS} ${Boost_LIBRARIES} )
+target_link_libraries( generate_triplet_pair cnn_master ${Caffe_LIBRARIES} ${OpenCV_LIBS} ${Boost_LIBRARIES} matdb unqlite )
 
