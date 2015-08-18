@@ -108,16 +108,15 @@ bool matdb::open_db( const string &db_name,const bool read_only)
 
     /// update the m_number_of_record if opens a existing database
     rc = unqlite_kv_cursor_first_entry(m_db_cur);
-    if( rc != UNQLITE_OK)
+    if( rc == UNQLITE_OK)
     {
-        cerr<<"Can not locate the first cursor"<<endl;
-        return false;
+        while( unqlite_kv_cursor_valid_entry(m_db_cur) )
+        {
+            m_number_of_record++;
+            unqlite_kv_cursor_next_entry(m_db_cur);
+        }
     }
-    while( unqlite_kv_cursor_valid_entry(m_db_cur) )
-    {
-        m_number_of_record++;
-        unqlite_kv_cursor_next_entry(m_db_cur);
-    }
+
     return true;
 }
 

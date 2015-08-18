@@ -1,40 +1,18 @@
 name: "small_max"
 layer {
   name: "data"
-  type: "Data"
+  type: "MemoryData"
   top: "data"
-#top: "label"
-  include {
-    phase: TRAIN
-  }
+  top: "label"
   transform_param {
-    mirror: true
     crop_size: 126
     scale: 0.00390625
   }
-  data_param {
-    source: "yuanyang/face_verfiry/triplet_train/"
-    batch_size: 90
-    backend: LMDB
-  }
-}
-layer {
-  name: "data"
-  type: "Data"
-  top: "data"
-#top: "label"
-  include {
-    phase: TEST
-  }
-  transform_param {
-    mirror: false
-    scale: 0.00390625
-    crop_size: 126
-  }
-  data_param {
-    source: "yuanyang/face_verfiry/triplet_train/"
-    batch_size: 90
-    backend: LMDB
+  memory_data_param {
+    batch_size: 1
+    channels: 1
+    height: 126
+    width: 126
   }
 }
 layer {
@@ -579,25 +557,3 @@ layer {
     bottom: "fc3"
     top : "l2_norm"
 }
-layer {
-    name: "slice12"
-    type: "Slice"
-    bottom: "l2_norm"
-    top: "slice12_1"
-    top: "slice12_2"
-    top: "slice12_3"
-    slice_param{
-        slice_dim: 0
-    }
-}
-layer {
-    name : "triplet_loss"
-    type : "TripletLoss"
-    bottom: "slice12_1"
-    bottom: "slice12_2"
-    bottom: "slice12_3"
-    triplet_loss_param{
-        margin: 0.35
-    }
-}
-

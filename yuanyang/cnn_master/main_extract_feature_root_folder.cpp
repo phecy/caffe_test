@@ -115,16 +115,16 @@ int main( int argc, char **argv )
     //string model_binary_file = "small_max_out.caffemodel";
     //string model_mean_file   = "";
 
-    string model_deploy_file = "sensetime.prototxt";   
-    string model_binary_file = "sensetime.model";
+    string model_deploy_file = "triplet_deploy.prototxt";   
+    string model_binary_file = "triplet_deploy.caffemodel";
     string model_mean_file   = "";
 
     cnn_master cnnfeature;
     cnnfeature.load_model( model_deploy_file, model_mean_file, model_binary_file);
 
-    cnnfeature.set_input_width( 256 );
-    cnnfeature.set_input_height(256) ;
-    cnnfeature.set_input_channel(3);
+    cnnfeature.set_input_width( 144 );
+    cnnfeature.set_input_height(144) ;
+    cnnfeature.set_input_channel(1);
 
     //cnnfeature.set_input_width( 144 );
     //cnnfeature.set_input_height(144) ;
@@ -133,7 +133,7 @@ int main( int argc, char **argv )
     cout<<"input should have width : "<<cnnfeature.get_input_width()<<endl;
     cout<<"input should have height : "<<cnnfeature.get_input_height()<<endl;
     cout<<"input should have channels : "<<cnnfeature.get_input_channels()<<endl;
-    cout<<"output dimension "<<cnnfeature.get_output_dimension("output")<<endl;
+    cout<<"output dimension "<<cnnfeature.get_output_dimension("l2_norm")<<endl;
 
     /* 2 test on negative pair */
     //string folder_root = "/home/yuanyang/data/face_recognition/celes_plus_diaosi/";
@@ -173,7 +173,7 @@ int main( int argc, char **argv )
             if( extname != ".jpg" && extname != ".png" && extname != ".bmp")
                 continue;
 
-            Mat input_img = imread( pathname );
+            Mat input_img = imread( pathname, CV_LOAD_IMAGE_GRAYSCALE);
 
 
             cv::resize( input_img, input_img, Size(cnnfeature.get_input_width(),cnnfeature.get_input_height()), 0, 0);
@@ -212,7 +212,7 @@ int main( int argc, char **argv )
         }
         
         cout<<"folder_name is "<<folder_name<<endl;
-        cnnfeature.extract_blob( "output", input_imgs, features);
+        cnnfeature.extract_blob( "l2_norm", input_imgs, features);
         cout<<"feature's size is "<<features.cols<<" "<<features.rows<<endl;
         saveMatToFile( features, "testdata/"+folder_name+".mat");
 	}

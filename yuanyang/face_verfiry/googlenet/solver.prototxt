@@ -3,7 +3,7 @@ test_iter: 2675
 test_interval: 2500
 test_initialization: true
 
-base_lr: 0.001
+base_lr: 0.0001
 lr_policy: "fixed"
 
 gamma: 0.000005
@@ -15,5 +15,5 @@ momentum: 0.9
 weight_decay: 0.0005
 snapshot: 2500
 
-snapshot_prefix: "yuanyang/face_verfiry/googlenet/googlenet_face_"
+snapshot_prefix: "yuanyang/face_verfiry/googlenet/googlenet_face_stage2_"
 solver_mode: GPU

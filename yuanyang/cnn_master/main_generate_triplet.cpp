@@ -108,13 +108,14 @@ int main( int argc, char** argv)
 {
     /* main parameters */
     int images_per_people_max = 50;
-    double margin = 0.7;
-    string feature_name = "output";
+    double margin = 0.4;
+    string feature_name = "l2_norm";
     int image_load_option = CV_LOAD_IMAGE_GRAYSCALE;
     int input_img_width = 144;
     int input_img_height = 144;
     int input_img_channel = 1;
-    int num_neg_sample_per_pair = 2;
+    int num_neg_sample_per_pair = 3;
+    int batch_size_in_prototxt = 30; // include anchor positive and nagetive , so multiply it by 3
 
     ofstream output_file("namelist.txt");
     
@@ -134,8 +135,8 @@ int main( int argc, char** argv)
         return -1;
     }
 
-    string model_deploy_file = "face_deploy.prototxt";   
-    string model_binary_file = "small_max_out.caffemodel";
+    string model_deploy_file = "triplet_deploy.prototxt";   
+    string model_binary_file = "triplet_deploy.caffemodel";
     string model_mean_file   = "";
 
     /* set cnn model */
@@ -169,7 +170,7 @@ int main( int argc, char** argv)
     /* compute all the feature and store is  */
     for( unsigned int i=0; i<folder_path.size();i++)
     {
-        cout<<"processing folder : "<<folder_path[i]<<endl;   
+        cout<<"processing folder : "<<i<<" out of "<<folder_path.size()<<" "<<folder_path[i]<<endl;   
         vector<string> image_path;
         get_all_image_files( folder_path[i], image_path);
 
@@ -177,6 +178,7 @@ int main( int argc, char** argv)
         for( unsigned int j=0; j<image_path.size();j++)
         {
             Mat im = imread( image_path[j], image_load_option);
+            cv::resize( im, im, Size( cnnfeature.get_input_width(), cnnfeature.get_input_height()));
             input_imgs.push_back( im );
         }
            
@@ -197,6 +199,10 @@ int main( int argc, char** argv)
         cout<<"processing folder : "<<folder_path[i]<<endl;   
         vector<string> image_path;
         get_all_image_files( folder_path[i], image_path);
+
+        /* skip those folder which has only 1 or zero images */
+        if( image_path.size() < 2) 
+            continue;
         
         vector<vector<int> > anchor_pos_pair;
         comb( image_path.size(), 2, anchor_pos_pair, images_per_people_max);
@@ -262,7 +268,7 @@ int main( int argc, char** argv)
                         //imshow("neg", img_n);
                         //waitKey(0);
 
-                        if( anchor_buffer.size() >= 60)
+                        if( anchor_buffer.size() >= batch_size_in_prototxt)
                             commit_buffer(anchor_buffer, pos_buffer, neg_buffer, output_file);
 
                         got_matched++;
@@ -274,8 +280,10 @@ int main( int argc, char** argv)
 
         }
     }
-    if( anchor_buffer.size() != 0)
-        commit_buffer(anchor_buffer, pos_buffer, neg_buffer, output_file);
+
+    /* we need the final number be the multiple of batch_size_in_prototxt , discard the rest*/
+    //if( anchor_buffer.size() != 0)
+    //    commit_buffer(anchor_buffer, pos_buffer, neg_buffer, output_file);
         
 
     output_file.close();
