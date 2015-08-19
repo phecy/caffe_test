@@ -108,13 +108,13 @@ int main( int argc, char** argv)
 {
     /* main parameters */
     int images_per_people_max = 50;
-    double margin = 0.45;
+    double margin = 0.4;
     string feature_name = "l2_norm";
     int image_load_option = CV_LOAD_IMAGE_GRAYSCALE;
     int input_img_width = 144;
     int input_img_height = 144;
     int input_img_channel = 1;
-    int num_neg_sample_per_pair = 4;
+    int num_neg_sample_per_pair = 5;
     int batch_size_in_prototxt = 30; // include anchor positive and nagetive , so multiply it by 3
 
     ofstream output_file("namelist.txt");

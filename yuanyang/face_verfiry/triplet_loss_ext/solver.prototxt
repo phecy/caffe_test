@@ -1,6 +1,6 @@
-net: "yuanyang/face_verfiry/triplet_loss_ext/train_val.prototxt"
-test_iter: 200
-test_interval: 5000
+net: "yuanyang/face_verfiry/triplet_loss_ext/train_val_v2.prototxt"
+test_iter: 1
+test_interval: 10002
 test_initialization: false
 
 base_lr: 0.001

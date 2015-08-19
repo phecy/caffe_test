@@ -137,11 +137,11 @@ int main( int argc, char **argv )
 
     /* 2 test on negative pair */
     //string folder_root = "/home/yuanyang/data/face_recognition/celes_plus_diaosi/";
-    string folder_root = "/home/yuanyang/data/face_recognition/diaosi_crop/";
+    //string folder_root = "/home/yuanyang/data/face_recognition/diaosi_crop/";
     //string folder_root = "veri_data/";
 
     //string folder_root = "/home/yuanyang/data/face_recognition/lfw/neg/";
-    //string folder_root = "/home/yuanyang/data/face_recognition/verification/";
+    string folder_root = "/home/yuanyang/data/face_recognition/verification/";
 
     bf::directory_iterator end_it;
 	for( bf::directory_iterator folder_iter( folder_root); folder_iter!=end_it; folder_iter++)
@@ -214,7 +214,7 @@ int main( int argc, char **argv )
         cout<<"folder_name is "<<folder_name<<endl;
         cnnfeature.extract_blob( "l2_norm", input_imgs, features);
         cout<<"feature's size is "<<features.cols<<" "<<features.rows<<endl;
-        saveMatToFile( features, "diaosi_crop/"+folder_name+".mat");
+        saveMatToFile( features, "testdata/"+folder_name+".mat");
 	}
     return 0;
 }
