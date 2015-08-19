@@ -506,6 +506,15 @@ layer {
     }
 }
 layer {
+    name : "dropoutfc1"
+    type: "Dropout"
+    bottom: "eltwise10"
+    top: "eltwise10"
+    dropout_param{
+        dropout_ratio: 0.4
+    }
+}
+layer {
   name: "fc2"
   type: "InnerProduct"
   bottom: "eltwise10"
@@ -547,6 +556,15 @@ layer {
     top: "eltwise11"
     eltwise_param{
         operation: MAX
+    }
+}
+layer {
+    name : "dropoutfc2"
+    type: "Dropout"
+    bottom: "eltwise11"
+    top: "eltwise11"
+    dropout_param{
+        dropout_ratio: 0.4
     }
 }
 layer {
@@ -597,7 +615,7 @@ layer {
     bottom: "slice12_2"
     bottom: "slice12_3"
     triplet_loss_param{
-        margin: 0.35
+        margin: 0.45
     }
 }
 
