@@ -60,7 +60,7 @@ void comb(int N, int K, vector<vector<int> > &all_combs, int len=0)
     }
 }
 
-void get_all_image_files( const string &folder, vector<string> &image_path)
+void get_all_image_files( const string &folder, vector<string> &image_path, int up_bound)
 {
     image_path.clear();
     if( !bf::is_directory(folder))
@@ -78,6 +78,12 @@ void get_all_image_files( const string &folder, vector<string> &image_path)
         if( extname != ".jpg" && extname != ".bmp" && extname != ".png")
             continue;
         image_path.push_back( f_iter->path().string());
+    }
+
+    if( image_path.size() > up_bound)
+    {
+        std::random_shuffle( image_path.begin(), image_path.end());
+        image_path.resize( up_bound);
     }
 }
 
@@ -107,15 +113,18 @@ void commit_buffer( vector<string> &anchor_buffer,
 int main( int argc, char** argv)
 {
     /* main parameters */
-    int images_per_people_max = 50;
-    double margin = 0.4;
+    int image_pair_per_people_max = 9;
+    int images_per_people_max = 10;
+    int num_neg_sample_per_pair = 2;
+
+    int batch_size_in_prototxt = 20; // include anchor positive and nagetive , so multiply it by 3
+
+    double margin = 0.35;
     string feature_name = "l2_norm";
     int image_load_option = CV_LOAD_IMAGE_GRAYSCALE;
-    int input_img_width = 144;
-    int input_img_height = 144;
+    int input_img_width = 180;
+    int input_img_height = 180;
     int input_img_channel = 1;
-    int num_neg_sample_per_pair = 5;
-    int batch_size_in_prototxt = 30; // include anchor positive and nagetive , so multiply it by 3
 
     ofstream output_file("namelist.txt");
     
@@ -172,7 +181,7 @@ int main( int argc, char** argv)
     {
         cout<<"processing folder : "<<i<<" out of "<<folder_path.size()<<" "<<folder_path[i]<<endl;   
         vector<string> image_path;
-        get_all_image_files( folder_path[i], image_path);
+        get_all_image_files( folder_path[i], image_path, images_per_people_max);
 
         vector<Mat> input_imgs;
         for( unsigned int j=0; j<image_path.size();j++)
@@ -198,14 +207,14 @@ int main( int argc, char** argv)
 
         cout<<"processing folder : "<<folder_path[i]<<endl;   
         vector<string> image_path;
-        get_all_image_files( folder_path[i], image_path);
+        get_all_image_files( folder_path[i], image_path, images_per_people_max);
 
         /* skip those folder which has only 1 or zero images */
         if( image_path.size() < 2) 
             continue;
         
         vector<vector<int> > anchor_pos_pair;
-        comb( image_path.size(), 2, anchor_pos_pair, images_per_people_max);
+        comb( image_path.size(), 2, anchor_pos_pair, image_pair_per_people_max);
         
         /* choose a nagetive sample for each anchor_positive pair*/
         for( unsigned int index=0;index<anchor_pos_pair.size();index++)
@@ -233,7 +242,7 @@ int main( int argc, char** argv)
                 while( negative_people_index == i );
 
                 vector<string> neg_imgs;
-                get_all_image_files( folder_path[negative_people_index], neg_imgs);
+                get_all_image_files( folder_path[negative_people_index], neg_imgs, images_per_people_max);
 
                 /* compare 2 images at most  */
                 for( unsigned int neg_index = 0; neg_index < neg_imgs.size() && neg_index < 2; neg_index++)

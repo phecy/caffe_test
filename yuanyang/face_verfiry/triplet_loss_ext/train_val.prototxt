@@ -637,7 +637,7 @@ layer {
     bottom: "slice12_2"
     bottom: "slice12_3"
     triplet_loss_param{
-        margin: 0.4
+        margin: 0.35
     }
 }
 
