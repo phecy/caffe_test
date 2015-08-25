@@ -1,45 +1,7 @@
 name: "small_max"
-#layer {
-#  name: "data"
-#  type: "Data"
-#  top: "data"
-##top: "label"
-#  include {
-#    phase: TRAIN
-#  }
-#  transform_param {
-#    mirror: true
-#    crop_size: 158
-#    scale: 0.00390625
-#  }
-#  data_param {
-#    source: "yuanyang/face_verfiry/triplet_train/"
-#    batch_size: 60
-#    backend: LMDB
-#  }
-#}
-#layer {
-#  name: "data"
-#  type: "Data"
-#  top: "data"
-##top: "label"
-#  include {
-#    phase: TEST
-#  }
-#  transform_param {
-#    mirror: false
-#    scale: 0.00390625
-#    crop_size: 158
-#  }
-#  data_param {
-#    source: "yuanyang/face_verfiry/triplet_train/"
-#    batch_size: 60
-#    backend: LMDB
-#  }
-#}
 layer {
   name: "data"
-  type: "ImageData"
+  type: "Data"
   top: "data"
   top: "label"
   include {
@@ -50,43 +12,81 @@ layer {
     crop_size: 158
     scale: 0.00390625
   }
-  image_data_param {
-    source: "yuanyang/face_verfiry/triplet_loss_ext/namelist.txt"
-    batch_size: 75
-    is_color: false
-    new_width: 180
-    new_height: 180
+  data_param {
+    source: "yuanyang/face_verfiry/train_lmdb/"
+    batch_size: 64
+    backend: LMDB
   }
 }
-
 layer {
   name: "data"
-  type: "ImageData"
+  type: "Data"
   top: "data"
- top: "label"
+  top: "label"
   include {
     phase: TEST
   }
   transform_param {
-    mirror: true
-    crop_size: 158
+    mirror: false
     scale: 0.00390625
+    crop_size: 158
   }
-  image_data_param {
-    source: "yuanyang/face_verfiry/triplet_loss_ext/namelist.txt"
-    is_color: false
-    batch_size: 75
-    new_width: 180
-    new_height: 180
+  data_param {
+    source: "yuanyang/face_verfiry/test_lmdb/"
+    batch_size: 10
+    backend: LMDB
   }
 }
-
-# eat the label output
-layer {
-    name : "shutup"
-    type : "Silence"
-    bottom : "label"
-}
+#layer {
+#  name: "data"
+#  type: "ImageData"
+#  top: "data"
+#  top: "label"
+#  include {
+#    phase: TRAIN
+#  }
+#  transform_param {
+#    mirror: true
+#    crop_size: 158
+#    scale: 0.00390625
+#  }
+#  image_data_param {
+#    source: "yuanyang/face_verfiry/triplet_loss_ext/namelist.txt"
+#    batch_size: 75
+#    is_color: false
+#    new_width: 180
+#    new_height: 180
+#  }
+#}
+#
+#layer {
+#  name: "data"
+#  type: "ImageData"
+#  top: "data"
+# top: "label"
+#  include {
+#    phase: TEST
+#  }
+#  transform_param {
+#    mirror: true
+#    crop_size: 158
+#    scale: 0.00390625
+#  }
+#  image_data_param {
+#    source: "yuanyang/face_verfiry/triplet_loss_ext/namelist.txt"
+#    is_color: false
+#    batch_size: 75
+#    new_width: 180
+#    new_height: 180
+#  }
+#}
+#
+## eat the label output
+#layer {
+#    name : "shutup"
+#    type : "Silence"
+#    bottom : "label"
+#}
 
 layer {
   name: "conv1"
@@ -612,15 +612,6 @@ layer {
     }
 }
 layer {
-    name : "dropoutfc1"
-    type: "Dropout"
-    bottom: "eltwise10"
-    top: "eltwise10"
-    dropout_param{
-        dropout_ratio: 0.1
-    }
-}
-layer {
   name: "fc2"
   type: "InnerProduct"
   bottom: "eltwise10"
@@ -670,14 +661,14 @@ layer {
     bottom: "eltwise11"
     top: "eltwise11"
     dropout_param{
-        dropout_ratio: 0.1
+        dropout_ratio: 0.6
     }
 }
 layer {
-  name: "fc3"
+  name: "classfy1_new"
   type: "InnerProduct"
   bottom: "eltwise11"
-  top: "fc3"
+  top: "classfy1_new"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -687,7 +678,7 @@ layer {
     decay_mult: 0
   }
   inner_product_param {
-    num_output: 256
+    num_output: 11085
     weight_filler {
       type: "xavier"
     }
@@ -698,30 +689,46 @@ layer {
   }
 }
 layer {
-    name : "l2_norm"
-    type : "GRN"
-    bottom: "fc3"
-    top : "l2_norm"
+	name: "loss1"
+	type: "SoftmaxWithLoss"
+	bottom: "classfy1_new"
+	bottom: "label"
 }
 layer {
-    name: "slice12"
-    type: "Slice"
-    bottom: "l2_norm"
-    top: "slice12_1"
-    top: "slice12_2"
-    top: "slice12_3"
-    slice_param{
-        slice_dim: 0
-    }
+	name: "accuracy"
+	type: "Accuracy"
+	bottom: "classfy1_new"
+	bottom: "label"
+	top: "accuracy"
+	include {
+		phase: TEST
+	}
 }
-layer {
-    name : "triplet_loss"
-    type : "TripletLoss"
-    bottom: "slice12_1"
-    bottom: "slice12_2"
-    bottom: "slice12_3"
-    triplet_loss_param{
-        margin: 0.4
-    }
-}
+#layer {
+#    name : "l2_norm"
+#    type : "GRN"
+#    bottom: "fc3"
+#    top : "l2_norm"
+#}
+#layer {
+#    name: "slice12"
+#    type: "Slice"
+#    bottom: "l2_norm"
+#    top: "slice12_1"
+#    top: "slice12_2"
+#    top: "slice12_3"
+#    slice_param{
+#        slice_dim: 0
+#    }
+#}
+#layer {
+#    name : "triplet_loss"
+#    type : "TripletLoss"
+#    bottom: "slice12_1"
+#    bottom: "slice12_2"
+#    bottom: "slice12_3"
+#    triplet_loss_param{
+#        margin: 0.4
+#    }
+#}
 

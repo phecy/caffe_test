@@ -115,11 +115,11 @@ int main( int argc, char** argv)
     /* main parameters */
     int image_pair_per_people_max = 9;
     int images_per_people_max = 10;
-    int num_neg_sample_per_pair = 2;
+    int num_neg_sample_per_pair = 3;
 
-    int batch_size_in_prototxt = 20; // include anchor positive and nagetive , so multiply it by 3
+    int batch_size_in_prototxt = 25; // include anchor positive and nagetive , so multiply it by 3
 
-    double margin = 0.35;
+    double margin = 0.4;
     string feature_name = "l2_norm";
     int image_load_option = CV_LOAD_IMAGE_GRAYSCALE;
     int input_img_width = 180;
