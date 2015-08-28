@@ -1,6 +1,6 @@
 #!/bin/bash
 
-iter=1
+iter=2
 while true; do
     echo "Start Training round ${iter}"
     # 1 delete temp file from last iteration
