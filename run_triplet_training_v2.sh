@@ -1,6 +1,6 @@
 #!/bin/bash
 
-iter=2
+iter=1
 while true; do
     echo "Start Training round ${iter}"
     # 1 delete temp file from last iteration
@@ -17,13 +17,13 @@ while true; do
 
     # link new caffemodel into working folder
     echo "link the model file into working folder..."
-    ln -s "${PWD}/yuanyang/face_verfiry/triplet_loss_ext/small_maxout_triplet__iter_30000.caffemodel" "${PWD}/yuanyang/cnn_master/build/triplet_deploy.caffemodel"
+    ln -s "${PWD}/yuanyang/face_verfiry/triplet_loss_ext/small_maxout_triplet__iter_10000.caffemodel" "${PWD}/yuanyang/cnn_master/build/triplet_deploy.caffemodel"
     #read -n1 -p "--> link file created ~"
     
     # 2 generate the new namelist.txt file, output file _--> namelist.txt feature.db 
     echo "generate the namelist.txt ..."
     cd ./yuanyang/cnn_master/build
-    ./generate_triplet_pair /home/yuanyang/data/face_recognition/superpack_crop/
+    ./generate_triplet_pair /home/yuanyang/data/face_recognition/diaosi_crop/
     cd ../../../
     #read -n1 -p "--> namelist generated ~"
     
@@ -40,7 +40,7 @@ while true; do
     
     # 3 train the model
     echo "Train new model"
-    ./build/tools/caffe  train -solver yuanyang/face_verfiry/triplet_loss_ext/solver.prototxt -weights yuanyang/face_verfiry/triplet_loss_ext/models/stage${iter}/small_maxout_triplet__iter_30000.caffemodel 
+    ./build/tools/caffe  train -solver yuanyang/face_verfiry/triplet_loss_ext/solver.prototxt -weights yuanyang/face_verfiry/triplet_loss_ext/models/stage${iter}/small_maxout_triplet__iter_10000.caffemodel 
 
     # read -n1 -p "--> new model training done"
 

@@ -115,8 +115,8 @@ int main( int argc, char **argv )
     //string model_binary_file = "small_max_out.caffemodel";
     //string model_mean_file   = "";
 
-    string model_deploy_file = "triplet_deploy.prototxt";   
-    string model_binary_file = "triplet_deploy2.caffemodel";
+    string model_deploy_file = "small_max_out.prototxt";   
+    string model_binary_file = "small_max_out.caffemodel";
     string model_mean_file   = "";
 
     cnn_master cnnfeature;
@@ -133,14 +133,13 @@ int main( int argc, char **argv )
     cout<<"input should have width : "<<cnnfeature.get_input_width()<<endl;
     cout<<"input should have height : "<<cnnfeature.get_input_height()<<endl;
     cout<<"input should have channels : "<<cnnfeature.get_input_channels()<<endl;
-    cout<<"output dimension "<<cnnfeature.get_output_dimension("l2_norm")<<endl;
 
     /* 2 test on negative pair */
     //string folder_root = "/home/yuanyang/data/face_recognition/celes_plus_diaosi/";
     //string folder_root = "/home/yuanyang/data/face_recognition/diaosi_crop/";
     //string folder_root = "veri_data/";
 
-    string folder_root = "/home/yuanyang/data/face_recognition/lfw/neg/";
+    string folder_root = "/home/yuanyang/data/face_recognition/lfw/pos/";
     //string folder_root = "/home/yuanyang/data/face_recognition/verification/";
 
     bf::directory_iterator end_it;
@@ -212,9 +211,9 @@ int main( int argc, char **argv )
         }
         
         cout<<"folder_name is "<<folder_name<<endl;
-        cnnfeature.extract_blob( "l2_norm", input_imgs, features);
+        cnnfeature.extract_blob( "eltwise11", input_imgs, features);
         cout<<"feature's size is "<<features.cols<<" "<<features.rows<<endl;
-        saveMatToFile( features, "lfw_neg/"+folder_name+".mat");
+        saveMatToFile( features, "lfw_pos/"+folder_name+".mat");
 	}
     return 0;
 }

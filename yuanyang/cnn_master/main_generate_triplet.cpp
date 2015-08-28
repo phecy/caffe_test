@@ -113,13 +113,14 @@ void commit_buffer( vector<string> &anchor_buffer,
 int main( int argc, char** argv)
 {
     /* main parameters */
-    int image_pair_per_people_max = 9;
-    int images_per_people_max = 10;
-    int num_neg_sample_per_pair = 3;
+    int image_pair_per_people_max = 15;
+    int images_per_people_max = 15;
+    int num_neg_sample_per_pair = 8;
+    int max_try_num = 25;
 
     int batch_size_in_prototxt = 25; // include anchor positive and nagetive , so multiply it by 3
 
-    double margin = 0.4;
+    double margin = 0.35;
     string feature_name = "l2_norm";
     int image_load_option = CV_LOAD_IMAGE_GRAYSCALE;
     int input_img_width = 180;
@@ -232,7 +233,7 @@ int main( int argc, char** argv)
             int negative_people_index = i;
 
             /* if the distance is, pick random max_try people for comparation*/
-            int max_try = 25;
+            int max_try = max_try_num;
             for( unsigned int iter=0; iter<max_try && got_matched < num_neg_sample_per_pair; iter++ )
             {
                 /* choose another person first */
