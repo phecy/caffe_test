@@ -7,7 +7,7 @@ layer {
   transform_param {
     mirror: false
     crop_size: 227
-    mean_file: "../../a.binaryproto"
+    mean_file: "wine_labels_mean.binaryproto"
   }
   memory_data_param {
     batch_size: 1
@@ -333,7 +333,7 @@ layer {
     decay_mult: 0
   }
   inner_product_param {
-    num_output: 836
+    num_output: 133
     weight_filler {
       type: "gaussian"
       std: 0.01

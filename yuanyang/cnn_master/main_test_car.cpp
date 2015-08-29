@@ -148,9 +148,9 @@ int main( int argc, char **argv )
     //string model_mean_file   = "../../car_type/car_type_mean.binaryproto";
     //string model_binary_file = "../../car_type/googlenet_model/googlenet_car.caffemodel";
 
-    string model_deploy_file = "../face_deploy.prototxt";   
-    string model_mean_file   = "../face_mean.binaryproto";
-    string model_binary_file = "../face_ver__iter_751.caffemodel";
+    string model_deploy_file = "deploy_wine.prototxt";   
+    string model_mean_file   = "wine_labels_mean.binaryproto";
+    string model_binary_file = "wine_model.caffemodel";
     
     cout<<"Loading model .."<<endl;
     cnn_master cnnfeature;
@@ -171,7 +171,11 @@ int main( int argc, char **argv )
 
         vector<Mat> imagelists;
         string image_path = test_root_path+"/"+file_list.at(c);
-        Mat input_image = imread( image_path, CV_LOAD_IMAGE_GRAYSCALE);
+        Mat input_image = imread( image_path );
+		imshow("origin", input_image);
+
+
+		cv::resize( input_image, input_image, Size(256, 256), 0, 0);
 
         if( input_image.channels() != cnnfeature.get_input_channels())
         {
@@ -201,6 +205,8 @@ int main( int argc, char **argv )
 
             cout<<"wrong_id is "<<wrong_id<<endl;
             save_wrong( wrong_count[wrong_id], wrong_id, input_image);
+
+			imshow("wrong", input_image);
         }
 
         /* show result */
@@ -216,7 +222,7 @@ int main( int argc, char **argv )
             cout<<"labelconf is "<<labelconfs[c]<<endl;
         }
 
-        imshow("test", input_image);
+        //imshow("test", input_image);
         waitKey(0);
     }
 
