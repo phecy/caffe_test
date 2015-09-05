@@ -1,8 +1,8 @@
 net: "yuanyang/car_type/caffenet_model/train_val.prototxt"
 test_iter: 31
 test_interval: 5000
-base_lr: 0.001
-lr_policy: "step"
+base_lr: 0.0001
+lr_policy: "fixed"
 gamma: 0.8
 stepsize: 1000
 display: 100
@@ -10,5 +10,5 @@ max_iter: 50000
 momentum: 0.9
 weight_decay: 0.0005
 snapshot: 5000
-snapshot_prefix: "yuanyang/car_type/pci_car_type_"
+snapshot_prefix: "yuanyang/car_type/pci_car_type_stage3_"
 solver_mode: GPU

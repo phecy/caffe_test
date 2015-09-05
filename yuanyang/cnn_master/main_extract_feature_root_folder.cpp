@@ -115,8 +115,8 @@ int main( int argc, char **argv )
     //string model_binary_file = "small_max_out.caffemodel";
     //string model_mean_file   = "";
 
-    string model_deploy_file = "triplet_deploy.prototxt";   
-    string model_binary_file = "triplet_deploy.caffemodel";
+    string model_deploy_file = "small_max_out.prototxt";   
+    string model_binary_file = "small_max_out.caffemodel";
     string model_mean_file   = "";
 
     cnn_master cnnfeature;
