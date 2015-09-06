@@ -921,6 +921,8 @@ const char* UpgradeV1LayerType(const V1LayerParameter_LayerType type) {
     return "GRN";
   case V1LayerParameter_LayerType_TRIPLET_LOSS:
     return "TripletLoss";
+  case V1LayerParameter_LayerType_BN:
+    return "BN";
   default:
     LOG(FATAL) << "Unknown V1LayerParameter layer type: " << type;
     return "";

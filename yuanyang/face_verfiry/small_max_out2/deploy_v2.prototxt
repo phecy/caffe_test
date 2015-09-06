@@ -1,20 +1,29 @@
 name: "small_max"
-layer {
-  name: "data"
-  type: "MemoryData"
-  top: "data"
-  top: "label"
-  transform_param {
-    crop_size: 158
-    scale: 0.00390625
-  }
-  memory_data_param {
-    batch_size: 1
-    channels: 1
-    height: 158
-    width: 158
-  }
-}
+
+input : "data"
+input_dim : 1
+input_dim : 1
+input_dim : 158
+input_dim : 158
+
+#layer {
+#  name: "data"
+#  type: "MemoryData"
+#  top: "data"
+#  top: "label"
+#  transform_param {
+#    crop_size: 158
+#    scale: 0.00390625
+#  }
+#  memory_data_param {
+#    batch_size: 1
+#    channels: 1
+#    height: 158
+#    width: 158
+#  }
+#}
+
+
 layer {
   name: "conv1"
   type: "Convolution"
@@ -41,6 +50,14 @@ layer {
     }
   }
 }
+
+layer { 
+	bottom: "conv1" top: "conv1" name: "bn1_1" type: "BN"
+	bn_param { scale_filler { type: 'constant' value: 1 }
+             shift_filler { type: 'constant' value: 0.001 } 
+  } 
+}
+
 layer {
 	name:"pool1"
 	type:"Pooling"
@@ -51,7 +68,8 @@ layer {
 		kernel_size:2
 		stride:2
 	}
-}layer {
+}
+layer {
   name: "norm1"
   type: "LRN"
   bottom: "pool1"

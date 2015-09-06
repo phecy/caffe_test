@@ -359,6 +359,7 @@ message LayerParameter {
   optional ThresholdParameter threshold_param = 128;
   optional WindowDataParameter window_data_param = 129;
   optional TripletLossParameter triplet_loss_param = 138;
+  optional BNParameter bn_param = 139;
 }
 
 // Message that stores parameters used to apply transformation
@@ -418,6 +419,17 @@ message ArgMaxParameter {
   // If true produce pairs (argmax, maxval)
   optional bool out_max_val = 1 [default = false];
   optional uint32 top_k = 2 [default = 1];
+}
+
+// Message that stores parameters used by BN (Batch Normalization)  layer
+message BNParameter {
+  enum BNMode {
+    LEARN = 0;
+    INFERENCE = 1;
+  }
+  optional BNMode bn_mode = 3 [default = LEARN];
+  optional FillerParameter scale_filler = 1;  // The filler for the scale
+  optional FillerParameter shift_filler = 2;  // The filler for the shift
 }
 
 // Message that stores parameters used by ConcatLayer
@@ -976,6 +988,7 @@ message V1LayerParameter {
     DECONVOLUTION = 39;
     GRN = 40;
 	TRIPLET_LOSS = 41;
+	BN = 43;
     DROPOUT = 6;
     DUMMY_DATA = 32;
     EUCLIDEAN_LOSS = 7;
