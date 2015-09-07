@@ -1,23 +1,92 @@
 name: "small_max"
-
-#input: "data"
-#input_dim: 1
-#input_dim: 1
-#input_dim: 160
-#input_dim: 160
-
 layer {
-  name: "data" type: "Data" top: "data" top: "label"
-  include { phase: TRAIN  }
-  transform_param {  mirror: true  crop_size: 128   scale: 0.00390625  }
-  data_param {   source: "yuanyang/face_verfiry/train_lmdb/"   batch_size: 50   backend: LMDB  }
+  name: "data"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    mirror: true
+    crop_size: 158
+    scale: 0.00390625
+  }
+  data_param {
+    source: "yuanyang/face_verfiry/train_lmdb/"
+    batch_size: 64
+    backend: LMDB
+  }
 }
 layer {
-  name: "data"  type: "Data"  top: "data"  top: "label"
-  include {   phase: TES   }
-  transform_param {   mirror: false  scale: 0.00390625   crop_size: 128  }
-  data_param {  source: "yuanyang/face_verfiry/test_lmdb/"  batch_size: 2  backend: LMDB  }
+  name: "data"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    mirror: false
+    scale: 0.00390625
+    crop_size: 158
+  }
+  data_param {
+    source: "yuanyang/face_verfiry/test_lmdb/"
+    batch_size: 10
+    backend: LMDB
+  }
 }
+#layer {
+#  name: "data"
+#  type: "ImageData"
+#  top: "data"
+#  top: "label"
+#  include {
+#    phase: TRAIN
+#  }
+#  transform_param {
+#    mirror: true
+#    crop_size: 158
+#    scale: 0.00390625
+#  }
+#  image_data_param {
+#    source: "yuanyang/face_verfiry/triplet_loss_ext/namelist.txt"
+#    batch_size: 75
+#    is_color: false
+#    new_width: 180
+#    new_height: 180
+#  }
+#}
+#
+#layer {
+#  name: "data"
+#  type: "ImageData"
+#  top: "data"
+# top: "label"
+#  include {
+#    phase: TEST
+#  }
+#  transform_param {
+#    mirror: true
+#    crop_size: 158
+#    scale: 0.00390625
+#  }
+#  image_data_param {
+#    source: "yuanyang/face_verfiry/triplet_loss_ext/namelist.txt"
+#    is_color: false
+#    batch_size: 75
+#    new_width: 180
+#    new_height: 180
+#  }
+#}
+#
+## eat the label output
+#layer {
+#    name : "shutup"
+#    type : "Silence"
+#    bottom : "label"
+#}
 
 layer {
   name: "conv1"
@@ -36,9 +105,8 @@ layer {
     num_output: 64
     kernel_size: 7
     stride: 1
-    pad: 3
     weight_filler {
-      type: "msra"
+      type: "xavier"
     }
     bias_filler {
       type: "constant"
@@ -46,13 +114,6 @@ layer {
     }
   }
 }
-
-layer {
-name:"bn1" bottom: "conv1" top:"conv1" type: "BN"
-         bn_param{ scale_filler {type:"constant" value: 1}
-                shift_filler{type:"constant" value:1 }}
-}
-
 layer {
 	name:"pool1"
 	type:"Pooling"
@@ -63,11 +124,21 @@ layer {
 		kernel_size:2
 		stride:2
 	}
+}layer {
+  name: "norm1"
+  type: "LRN"
+  bottom: "pool1"
+  top: "norm1"
+  lrn_param {
+    local_size: 3
+    alpha: 0.0001
+    beta: 0.75
+  }
 }
 layer {
     name: "slice1"
     type: "Slice"
-    bottom: "pool1"
+    bottom: "norm1"
     top: "slice1_1"
     top: "slice1_2"
     slice_param{
@@ -101,21 +172,14 @@ layer {
     num_output: 128
     kernel_size: 3
     stride: 1
-    pad: 1
     weight_filler {
-      type: "msra"
+      type: "xavier"
     }
     bias_filler {
       type: "constant"
       value: 0.1
     }
   }
-}
-
-layer {
-name:"bn2" bottom: "conv2" top:"conv2" type: "BN"
-         bn_param{ scale_filler {type:"constant" value: 1}
-                shift_filler{type:"constant" value:1 }}
 }
 layer {
     name: "slice2"
@@ -154,9 +218,8 @@ layer {
     num_output: 128
     kernel_size: 3
     stride: 1
-    pad: 1
     weight_filler {
-      type: "msra"
+      type: "xavier"
     }
     bias_filler {
       type: "constant"
@@ -165,14 +228,20 @@ layer {
   }
 }
 layer {
-name:"bn3" bottom: "conv3" top:"conv3" type: "BN"
-         bn_param{ scale_filler {type:"constant" value: 1}
-                shift_filler{type:"constant" value:1 }}
+	name:"pool3"
+	type:"Pooling"
+	bottom:"conv3"
+	top:"pool3"
+	pooling_param{
+		pool:MAX
+		kernel_size:2
+		stride:2
+	}
 }
 layer {
     name: "slice3"
     type: "Slice"
-    bottom: "conv3"
+    bottom: "pool3"
     top: "slice3_1"
     top: "slice3_2"
     slice_param{
@@ -190,20 +259,9 @@ layer {
     }
 }
 layer {
-	name:"pool3"
-	type:"Pooling"
-	bottom:"eltwise3"
-	top:"pool3"
-	pooling_param{
-		pool:MAX
-		kernel_size:2
-		stride:2
-	}
-}
-layer {
   name: "conv4"
   type: "Convolution"
-  bottom: "pool3"
+  bottom: "eltwise3"
   top: "conv4"
   param {
     lr_mult: 1
@@ -217,20 +275,14 @@ layer {
     num_output: 192
     kernel_size: 3
     stride: 1
-    pad: 1
     weight_filler {
-      type: "msra"
+      type: "xavier"
     }
     bias_filler {
       type: "constant"
       value: 0.1
     }
   }
-}
-layer {
-name:"bn4" bottom: "conv4" top:"conv4" type: "BN"
-         bn_param{ scale_filler {type:"constant" value: 1}
-                shift_filler{type:"constant" value:1 }}
 }
 layer {
     name: "slice4"
@@ -269,9 +321,8 @@ layer {
     num_output: 192
     kernel_size: 3
     stride: 1
-    pad: 1
     weight_filler {
-      type: "msra"
+      type: "xavier"
     }
     bias_filler {
       type: "constant"
@@ -280,14 +331,20 @@ layer {
   }
 }
 layer {
-name:"bn5" bottom: "conv5" top:"conv5" type: "BN"
-         bn_param{ scale_filler {type:"constant" value: 1}
-                shift_filler{type:"constant" value:1 }}
+	name:"pool5"
+	type:"Pooling"
+	bottom:"conv5"
+	top:"pool5"
+	pooling_param{
+		pool:MAX
+		kernel_size:2
+		stride:2
+	}
 }
 layer {
     name: "slice5"
     type: "Slice"
-    bottom: "conv5"
+    bottom: "pool5"
     top: "slice5_1"
     top: "slice5_2"
     slice_param{
@@ -304,78 +361,10 @@ layer {
         operation: MAX
     }
 }
-
-layer {
-  name: "conv5_1"
-  type: "Convolution"
-  bottom: "eltwise5"
-  top: "conv5_1"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  convolution_param {
-    num_output: 192
-    kernel_size: 3
-    stride: 1
-    pad: 1
-    weight_filler {
-      type: "msra"
-    }
-    bias_filler {
-      type: "constant"
-      value: 0.1
-    }
-  }
-}
-
-layer {
-name:"bn5_1" bottom: "conv5_1" top:"conv5_1" type: "BN"
-         bn_param{ scale_filler {type:"constant" value: 1}
-                shift_filler{type:"constant" value:1 }}
-}
-
-
-layer {
-    name: "slice5_1"
-    type: "Slice"
-    bottom: "conv5_1"
-    top: "slice5_1_1"
-    top: "slice5_2_1"
-    slice_param{
-        slice_dim: 1
-    }
-}
-layer {
-    name: "eltwise5_1"
-    type: "Eltwise"
-    bottom: "slice5_1_1"
-    bottom: "slice5_2_1"
-    top: "eltwise5_1"
-    eltwise_param{
-        operation: MAX
-    }
-}
-layer {
-	name:"pool5"
-	type:"Pooling"
-	bottom:"eltwise5_1"
-	top:"pool5"
-	pooling_param{
-		pool:MAX
-		kernel_size:2
-		stride:2
-	}
-}
-
 layer {
   name: "conv6"
   type: "Convolution"
-  bottom: "pool5"
+  bottom: "eltwise5"
   top: "conv6"
   param {
     lr_mult: 1
@@ -389,9 +378,8 @@ layer {
     num_output: 256
     kernel_size: 3
     stride: 1
-    pad: 1
     weight_filler {
-      type: "msra"
+      type: "xavier"
     }
     bias_filler {
       type: "constant"
@@ -399,13 +387,6 @@ layer {
     }
   }
 }
-
-layer {
-name:"bn6" bottom: "conv6" top:"conv6" type: "BN"
-         bn_param{ scale_filler {type:"constant" value: 1}
-                shift_filler{type:"constant" value:1 }}
-}
-
 layer {
     name: "slice6"
     type: "Slice"
@@ -443,9 +424,8 @@ layer {
     num_output: 256
     kernel_size: 3
     stride: 1
-    pad: 1
     weight_filler {
-      type: "msra"
+      type: "xavier"
     }
     bias_filler {
       type: "constant"
@@ -453,16 +433,21 @@ layer {
     }
   }
 }
-
 layer {
-name:"bn7" bottom: "conv7" top:"conv7" type: "BN"
-         bn_param{ scale_filler {type:"constant" value: 1}
-                shift_filler{type:"constant" value:1 }}
+	name:"pool7"
+	type:"Pooling"
+	bottom:"conv7"
+	top:"pool7"
+	pooling_param{
+		pool:MAX
+		kernel_size:2
+		stride:2
+	}
 }
 layer {
     name: "slice7"
     type: "Slice"
-    bottom: "conv7"
+    bottom: "pool7"
     top: "slice7_1"
     top: "slice7_2"
     slice_param{
@@ -479,74 +464,10 @@ layer {
         operation: MAX
     }
 }
-
-layer {
-  name: "conv7_1"
-  type: "Convolution"
-  bottom: "eltwise7"
-  top: "conv7_1"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  convolution_param {
-    num_output: 256
-    kernel_size: 3
-    stride: 1
-    pad: 1
-    weight_filler {
-      type: "msra"
-    }
-    bias_filler {
-      type: "constant"
-      value: 0.1
-    }
-  }
-}
-layer {
-name:"bn7_1" bottom: "conv7_1" top:"conv7_1" type: "BN"
-         bn_param{ scale_filler {type:"constant" value: 1}
-                shift_filler{type:"constant" value:1 }}
-}
-layer {
-    name: "slice7_1"
-    type: "Slice"
-    bottom: "conv7_1"
-    top: "slice7_1_1"
-    top: "slice7_2_1"
-    slice_param{
-        slice_dim: 1
-    }
-}
-layer {
-    name: "eltwise7_1"
-    type: "Eltwise"
-    bottom: "slice7_1_1"
-    bottom: "slice7_2_1"
-    top: "eltwise7_1"
-    eltwise_param{
-        operation: MAX
-    }
-}
-layer {
-	name:"pool7"
-	type:"Pooling"
-	bottom:"eltwise7_1"
-	top:"pool7"
-	pooling_param{
-		pool:MAX
-		kernel_size:2
-		stride:2
-	}
-}
 layer {
   name: "conv8"
   type: "Convolution"
-  bottom: "pool7"
+  bottom: "eltwise7"
   top: "conv8"
   param {
     lr_mult: 1
@@ -560,20 +481,14 @@ layer {
     num_output: 512
     kernel_size: 3
     stride: 1
-    pad: 1
     weight_filler {
-      type: "msra"
+      type: "xavier"
     }
     bias_filler {
       type: "constant"
       value: 0.1
     }
   }
-}
-layer {
-name:"bn8" bottom: "conv8" top:"conv8" type: "BN"
-         bn_param{ scale_filler {type:"constant" value: 1}
-                shift_filler{type:"constant" value:1 }}
 }
 layer {
     name: "slice8"
@@ -612,9 +527,8 @@ layer {
     num_output: 512
     kernel_size: 3
     stride: 1
-    pad: 1
     weight_filler {
-      type: "msra"
+      type: "xavier"
     }
     bias_filler {
       type: "constant"
@@ -622,13 +536,6 @@ layer {
     }
   }
 }
-
-layer {
-name:"bn9" bottom: "conv9" top:"conv9" type: "BN"
-         bn_param{ scale_filler {type:"constant" value: 1}
-                shift_filler{type:"constant" value:1 }}
-}
-
 layer {
     name: "slice9"
     type: "Slice"
@@ -650,89 +557,20 @@ layer {
     }
 }
 layer {
-  name: "conv9_1"
-  type: "Convolution"
-  bottom: "eltwise9"
-  top: "conv9_1"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  convolution_param {
-    num_output: 512
-    kernel_size: 3
-    stride: 1
-    pad: 1
-    weight_filler {
-      type: "msra"
-    }
-    bias_filler {
-      type: "constant"
-      value: 0.1
-    }
-  }
-}
-
-layer {
-name:"bn9_1" bottom: "conv9_1" top:"conv9_1" type: "BN"
-         bn_param{ scale_filler {type:"constant" value: 1}
-                shift_filler{type:"constant" value:1 }}
-}
-layer {
-    name: "slice9_1"
-    type: "Slice"
-    bottom: "conv9_1"
-    top: "slice9_1_1"
-    top: "slice9_2_1"
-    slice_param{
-        slice_dim: 1
-    }
-}
-layer {
-    name: "eltwise9_1"
-    type: "Eltwise"
-    bottom: "slice9_1_1"
-    bottom: "slice9_2_1"
-    top: "eltwise9_1"
-    eltwise_param{
-        operation: MAX
-    }
-}
-
-layer {
 	name:"pool9"
 	type:"Pooling"
-	bottom:"eltwise9_1"
+	bottom:"eltwise9"
 	top:"pool9"
 	pooling_param{
-		pool:MAX
+		pool:AVE
 		kernel_size:2
 		stride:2
 	}
 }
 layer {
-  name: "flatten1"
-  type: "Flatten"
-  bottom: "pool9"
-  top: "flatten1"
-}
-layer {
-    name : "dropout2"
-    type: "Dropout"
-    bottom: "flatten1"
-    top: "flatten1"
-    dropout_param{
-        dropout_ratio: 0.5
-    }
-}
-layer {
   name: "fc1"
   type: "InnerProduct"
-  bottom: "flatten1"
+  bottom: "pool9"
   top: "fc1"
   param {
     lr_mult: 1
@@ -745,8 +583,7 @@ layer {
   inner_product_param {
     num_output: 512
     weight_filler {
-      type: "gaussian"
-      std: 0.01
+      type: "xavier"
     }
     bias_filler {
       type: "constant"
@@ -775,32 +612,75 @@ layer {
     }
 }
 layer {
-    name : "dropout1"
-    type: "Dropout"
-    bottom: "eltwise10"
-    top: "eltwise10"
-    dropout_param{
-        dropout_ratio: 0.4
-    }
-}
-layer {
-  name: "classfy1"
+  name: "fc2"
   type: "InnerProduct"
   bottom: "eltwise10"
-  top: "classfy1"
+  top: "fc2"
   param {
     lr_mult: 1
-    decay_mult: 10
+    decay_mult: 1
   }
   param {
     lr_mult: 2
     decay_mult: 0
   }
   inner_product_param {
-    num_output: 24676
+    num_output: 512
     weight_filler {
-      type: "gaussian"
-      std: 0.01
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.1
+    }
+  }
+}
+layer {
+    name: "slice11"
+    type: "Slice"
+    bottom: "fc2"
+    top: "slice11_1"
+    top: "slice11_2"
+    slice_param{
+        slice_dim: 1
+    }
+}
+layer {
+    name: "eltwise11"
+    type: "Eltwise"
+    bottom: "slice11_1"
+    bottom: "slice11_2"
+    top: "eltwise11"
+    eltwise_param{
+        operation: MAX
+    }
+}
+layer {
+    name : "dropoutfc2"
+    type: "Dropout"
+    bottom: "eltwise11"
+    top: "eltwise11"
+    dropout_param{
+        dropout_ratio: 0.6
+    }
+}
+layer {
+  name: "classfy1_new"
+  type: "InnerProduct"
+  bottom: "eltwise11"
+  top: "classfy1_new"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 11085
+    weight_filler {
+      type: "xavier"
     }
     bias_filler {
       type: "constant"
@@ -811,13 +691,13 @@ layer {
 layer {
 	name: "loss1"
 	type: "SoftmaxWithLoss"
-	bottom: "classfy1"
+	bottom: "classfy1_new"
 	bottom: "label"
 }
 layer {
 	name: "accuracy"
 	type: "Accuracy"
-	bottom: "classfy1"
+	bottom: "classfy1_new"
 	bottom: "label"
 	top: "accuracy"
 	include {

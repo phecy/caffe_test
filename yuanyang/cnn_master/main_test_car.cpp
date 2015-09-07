@@ -101,7 +101,7 @@ bool read_in_list( const string &list_file,
         return false;
     }
     int r;
-    char file_name_buffer[200];
+    char file_name_buffer[800];
     int file_label;
     while(1)
     {
@@ -144,17 +144,22 @@ int main( int argc, char **argv )
     map<int, vector<int> > decision_list;
 
     /*  set paths for model */
-    //string model_deploy_file = "../../car_type/googlenet_model/deploy.prototxt";   
-    //string model_mean_file   = "../../car_type/car_type_mean.binaryproto";
-    //string model_binary_file = "../../car_type/googlenet_model/googlenet_car.caffemodel";
+    string model_deploy_file = "../../car_type/caffenet_model/deploy_car.prototxt";   
+    string model_mean_file   = "../../car_type/car_type_mean.binaryproto";
+    string model_binary_file = "../../car_type/pci_car_type_stage2__iter_30000.caffemodel";
 
-    string model_deploy_file = "deploy_wine.prototxt";   
-    string model_mean_file   = "wine_labels_mean.binaryproto";
-    string model_binary_file = "wine_model.caffemodel";
+    //string model_deploy_file = "deploy_wine.prototxt";   
+    //string model_mean_file   = "wine_labels_mean.binaryproto";
+    //string model_binary_file = "wine_model.caffemodel";
     
     cout<<"Loading model .."<<endl;
     cnn_master cnnfeature;
     cnnfeature.load_model( model_deploy_file, model_mean_file, model_binary_file);
+
+    cnnfeature.set_input_channel(3);
+    cnnfeature.set_input_width(256);
+    cnnfeature.set_input_height(256);
+
     cout<<"input should have width : "<<cnnfeature.get_input_width()<<endl;
     cout<<"input should have height : "<<cnnfeature.get_input_height()<<endl;
     cout<<"input should have channels : "<<cnnfeature.get_input_channels()<<endl;
@@ -172,7 +177,7 @@ int main( int argc, char **argv )
         vector<Mat> imagelists;
         string image_path = test_root_path+"/"+file_list.at(c);
         Mat input_image = imread( image_path );
-		imshow("origin", input_image);
+		//imshow("origin", input_image);
 
 
 		cv::resize( input_image, input_image, Size(256, 256), 0, 0);
@@ -204,9 +209,9 @@ int main( int argc, char **argv )
                 wrong_count[wrong_id] += 1;
 
             cout<<"wrong_id is "<<wrong_id<<endl;
-            save_wrong( wrong_count[wrong_id], wrong_id, input_image);
+            //save_wrong( wrong_count[wrong_id], wrong_id, input_image);
 
-			imshow("wrong", input_image);
+			//imshow("wrong", input_image);
         }
 
         /* show result */
@@ -223,7 +228,7 @@ int main( int argc, char **argv )
         }
 
         //imshow("test", input_image);
-        waitKey(0);
+        //waitKey(0);
     }
 
     /* record the decision error */

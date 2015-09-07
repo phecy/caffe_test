@@ -1,4 +1,4 @@
-net: "yuanyang/face_verfiry/small_max_out2/train_val_v2.prototxt"
+net: "yuanyang/face_verfiry/small_max_out2/train_val.prototxt"
 test_iter: 6242
 test_interval: 5000
 test_initialization: false
