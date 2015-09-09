@@ -111,9 +111,9 @@ bool cnn_master::load_model( const string &deploy_file_path,    /* in : path of 
     }
     
     /* by default use GPU 0 */
-    Caffe::set_mode( Caffe::GPU);   /* if it dosen't have GPU, will use CPU instead */
-    unsigned int device_id = 0;
-    Caffe::SetDevice( device_id );
+    Caffe::set_mode( Caffe::CPU);   /* if it dosen't have GPU, will use CPU instead */
+    //unsigned int device_id = 0;
+    //Caffe::SetDevice( device_id );
 
     /* --------------- loading---------------*/
     m_network = NULL;
@@ -244,6 +244,7 @@ bool cnn_master::extract_blob(  const string &blob_name,                     /* 
         return false;
     }
 
+
     /*  get the infos about every blob */
     const std::vector<string> blob_names = m_network->blob_names();
     const std::vector<string> layer_names = m_network->layer_names();
@@ -305,7 +306,7 @@ bool cnn_master::extract_blob(  const string &blob_name,                     /* 
         /* fire the network */
         float no_use_loss=0;
         m_network->ForwardPrefilled(&no_use_loss);
-        
+
         /* store the blob to Mat */
         const float *feature_blob_data = NULL;
         for(  int c=0;c<output_blob->num();c++)
