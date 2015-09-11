@@ -114,17 +114,17 @@ int main( int argc, char** argv)
 {
     /* main parameters */
     int image_pair_per_people_max = 15;
-    int images_per_people_max = 15;
-    int num_neg_sample_per_pair = 8;
+    int images_per_people_max = 20;
+    int num_neg_sample_per_pair = 16;
     int max_try_num = 25;
 
-    int batch_size_in_prototxt = 25; // include anchor positive and nagetive , so multiply it by 3
+    int batch_size_in_prototxt = 22; // include anchor positive and nagetive , so multiply it by 3
 
-    double margin = 0.2;
+    double margin = 0.3;
     string feature_name = "l2_norm";
     int image_load_option = CV_LOAD_IMAGE_GRAYSCALE;
-    int input_img_width = 180;
-    int input_img_height = 180;
+    int input_img_width = 140;
+    int input_img_height = 140;
     int input_img_channel = 1;
 
     ofstream output_file("namelist.txt");
@@ -206,7 +206,7 @@ int main( int argc, char** argv)
     for( unsigned int i=0; i<folder_path.size();i++)
     {
 
-        cout<<"processing folder : "<<folder_path[i]<<endl;   
+        cout<<"processing folder 2 : "<<folder_path[i]<<endl;   
         vector<string> image_path;
         get_all_image_files( folder_path[i], image_path, images_per_people_max);
 

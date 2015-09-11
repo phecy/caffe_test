@@ -3,7 +3,7 @@ test_iter: 6242
 test_interval: 5000
 test_initialization: false
 
-base_lr: 0.0001
+base_lr: 0.000001
 lr_policy: "fixed"
 
 gamma: 0.000005
@@ -15,5 +15,5 @@ momentum: 0.9
 weight_decay: 0.0005
 snapshot: 10000
 
-snapshot_prefix: "yuanyang/face_verfiry/small_max_out2/small_maxout2_stage2_"
+snapshot_prefix: "yuanyang/face_verfiry/small_max_out2/small_maxout2_stage4_"
 solver_mode: GPU

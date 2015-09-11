@@ -1,4 +1,5 @@
-net: "yuanyang/face_verfiry/triplet_loss_ext/train_val_v2.prototxt"
+net: "yuanyang/face_verfiry/triplet_loss_ext/spp_like.prototxt"
+
 test_iter: 1
 test_interval: 10000002
 test_initialization: false
@@ -6,14 +7,17 @@ test_initialization: false
 base_lr: 0.001
 lr_policy: "fixed"
 
+# make the actual batchsize 22*3 = 66 ~= 64
+iter_size: 3
+
 gamma: 0.000005
 power: 0.75
 
 display: 100
-max_iter: 10001
+max_iter: 5001
 momentum: 0.9
 weight_decay: 0.0005
-snapshot: 10000
+snapshot: 5000
 
-snapshot_prefix: "yuanyang/face_verfiry/triplet_loss_ext/small_maxout_triplet_"
+snapshot_prefix: "yuanyang/face_verfiry/triplet_loss_ext/spp_like_"
 solver_mode: GPU
