@@ -1,6 +1,6 @@
 #!/bin/bash
 
-iter=4
+iter=7
 while true; do
     echo "Start Training round ${iter}"
     # 1 delete temp file from last iteration
@@ -23,7 +23,7 @@ while true; do
     # 2 generate the new namelist.txt file, output file _--> namelist.txt feature.db 
     echo "generate the namelist.txt ..."
     cd ./yuanyang/cnn_master/build
-    ./generate_triplet_pair /home/yuanyang/data/face_recognition/diaosi_crop/
+    ./generate_triplet_pair /home/yuanyang/data/face_recognition/all_crop/
     cd ../../../
     #read -n1 -p "--> namelist generated ~"
     

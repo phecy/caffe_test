@@ -1,9 +1,10 @@
-net: "yuanyang/face_verfiry/googlenet/train_val.prototxt"
-test_iter: 2675
-test_interval: 2500
+net: "yuanyang/face_verfiry/googlenet/google_train.prototxt"
+
+test_iter: 7098
+test_interval: 5000
 test_initialization: true
 
-base_lr: 0.0001
+base_lr: 0.001
 lr_policy: "fixed"
 
 gamma: 0.000005
@@ -13,7 +14,7 @@ display: 100
 max_iter: 2000000
 momentum: 0.9
 weight_decay: 0.0005
-snapshot: 2500
+snapshot: 5000
 
-snapshot_prefix: "yuanyang/face_verfiry/googlenet/googlenet_face_stage2_"
+snapshot_prefix: "yuanyang/face_verfiry/googlenet/googlenet_"
 solver_mode: GPU

@@ -113,9 +113,9 @@ void commit_buffer( vector<string> &anchor_buffer,
 int main( int argc, char** argv)
 {
     /* main parameters */
-    int image_pair_per_people_max = 15;
-    int images_per_people_max = 25;
-    int num_neg_sample_per_pair = 30;
+    int image_pair_per_people_max = 60;
+    int images_per_people_max = 60;
+    int num_neg_sample_per_pair = 2;
     int max_try_num = 25;
 
     int batch_size_in_prototxt = 22; // include anchor positive and nagetive , so multiply it by 3
@@ -206,7 +206,7 @@ int main( int argc, char** argv)
     for( unsigned int i=0; i<folder_path.size();i++)
     {
 
-        cout<<"processing folder 2 : "<<folder_path[i]<<endl;   
+        cout<<"commiting ..  "<<i<<" "<<folder_path[i]<<endl;   
         vector<string> image_path;
         get_all_image_files( folder_path[i], image_path, images_per_people_max);
 

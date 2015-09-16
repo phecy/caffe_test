@@ -111,13 +111,13 @@ string get_folder_name( const string &fullpath)
 int main( int argc, char **argv )
 {
     /*  set paths for model */
-    //string model_deploy_file = "google.prototxt";   
-    //string model_binary_file = "google.caffemodel";
-    //string model_mean_file   = "";
-
-    string model_deploy_file = "triplet_deploy.prototxt";   
-    string model_binary_file = "triplet_deploy.caffemodel";
+    string model_deploy_file = "face_deploy.prototxt";   
+    string model_binary_file = "face_deploy.caffemodel";
     string model_mean_file   = "";
+
+    //string model_deploy_file = "triplet_deploy.prototxt";   
+    //string model_binary_file = "triplet_deploy1.caffemodel";
+    //string model_mean_file   = "";
 
     cnn_master cnnfeature;
     cnnfeature.load_model( model_deploy_file, model_mean_file, model_binary_file);
@@ -139,7 +139,7 @@ int main( int argc, char **argv )
     //string folder_root = "/home/yuanyang/data/face_recognition/diaosi_crop/";
     //string folder_root = "veri_data/";
 
-    //string folder_root = "/home/yuanyang/data/face_recognition/lfw/neg/";
+    //string folder_root = "/home/yuanyang/data/face_recognition/lfw/pos/";
     //string folder_root = "/home/yuanyang/data/face_recognition/superpack_crop/";
     string folder_root = "/home/yuanyang/data/face_recognition/verification";
 
@@ -212,7 +212,7 @@ int main( int argc, char **argv )
         }
         
         cout<<"folder_name is "<<folder_name<<endl;
-        cnnfeature.extract_blob( "l2_norm", input_imgs, features);
+        cnnfeature.extract_blob( "eltwise10", input_imgs, features);
         cout<<"feature's size is "<<features.cols<<" "<<features.rows<<endl;
         saveMatToFile( features, "testdata/"+folder_name+".mat");
 	}

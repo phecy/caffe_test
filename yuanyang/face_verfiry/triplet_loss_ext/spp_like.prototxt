@@ -17,7 +17,7 @@ layer {
   include { phase: TEST }
   transform_param { mirror: false scale: 0.00390625 crop_size: 128 }
   image_data_param {
-    source: "yuanyang/face_verfiry/triplet_loss_ext/namelist.txt"
+    source: "yuanyang/face_verfiry/triplet_loss_ext/val_namelist.txt"
     batch_size: 66
     is_color: false
     new_width: 140
