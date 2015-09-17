@@ -2623,7 +2623,7 @@ layer{
 }
 layer {
   name: "classfy1"  type: "InnerProduct"  bottom: "pool5/7x7_s1"  top: "classfy1_new"
-  param {  lr_mult: 10  decay_mult: 10  }
+  param {  lr_mult: 1  decay_mult: 10  }
   param {  lr_mult: 2  decay_mult: 0  }
   inner_product_param {
     num_output: 24677
