@@ -139,9 +139,9 @@ int main( int argc, char **argv )
     //string folder_root = "/home/yuanyang/data/face_recognition/diaosi_crop/";
     //string folder_root = "veri_data/";
 
-    //string folder_root = "/home/yuanyang/data/face_recognition/lfw/pos/";
+    string folder_root = "/home/yuanyang/data/face_recognition/lfw/pos/";
     //string folder_root = "/home/yuanyang/data/face_recognition/superpack_crop/";
-    string folder_root = "/home/yuanyang/data/face_recognition/verification";
+    //string folder_root = "/home/yuanyang/data/face_recognition/verification";
 
     bf::directory_iterator end_it;
 	for( bf::directory_iterator folder_iter( folder_root); folder_iter!=end_it; folder_iter++)
@@ -212,9 +212,9 @@ int main( int argc, char **argv )
         }
         
         cout<<"folder_name is "<<folder_name<<endl;
-        cnnfeature.extract_blob( "eltwise10", input_imgs, features);
+        cnnfeature.extract_blob( "pool5/7x7_s1", input_imgs, features);
         cout<<"feature's size is "<<features.cols<<" "<<features.rows<<endl;
-        saveMatToFile( features, "testdata/"+folder_name+".mat");
+        saveMatToFile( features, "lfw_pos/"+folder_name+".mat");
 	}
     return 0;
 }

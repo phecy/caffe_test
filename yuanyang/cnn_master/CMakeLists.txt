@@ -24,6 +24,7 @@ add_executable(compare_face main_compare_face.cpp)
 add_executable(jb_test main_joint_bayesian_test.cpp)
 add_executable(l2_test main_l2norm_test.cpp)
 add_executable( generate_triplet_pair main_generate_triplet.cpp)
+add_executable( make_testsample main_make_testsample.cpp)
 
 add_library( cnn_master cnn_master.hpp cnn_master.cpp)
 add_library( misc misc.hpp misc.cpp)
@@ -44,4 +45,5 @@ target_link_libraries( compare_face cnn_master ${Caffe_LIBRARIES} ${OpenCV_LIBS}
 target_link_libraries( jb_test cnn_master ${Caffe_LIBRARIES} ${OpenCV_LIBS} ${Boost_LIBRARIES} )
 target_link_libraries( l2_test cnn_master ${Caffe_LIBRARIES} ${OpenCV_LIBS} ${Boost_LIBRARIES} )
 target_link_libraries( generate_triplet_pair cnn_master ${Caffe_LIBRARIES} ${OpenCV_LIBS} ${Boost_LIBRARIES} matdb unqlite )
+target_link_libraries( make_testsample cnn_master ${Caffe_LIBRARIES} ${OpenCV_LIBS} ${Boost_LIBRARIES} matdb unqlite )
 

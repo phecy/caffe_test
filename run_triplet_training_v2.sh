@@ -1,6 +1,6 @@
 #!/bin/bash
 
-iter=7
+iter=1
 while true; do
     echo "Start Training round ${iter}"
     # 1 delete temp file from last iteration
@@ -17,7 +17,7 @@ while true; do
 
     # link new caffemodel into working folder
     echo "link the model file into working folder..."
-    ln -s "${PWD}/yuanyang/face_verfiry/triplet_loss_ext/spp_like__iter_5000.caffemodel" "${PWD}/yuanyang/cnn_master/build/triplet_deploy.caffemodel"
+    ln -s "${PWD}/yuanyang/face_verfiry/triplet_loss_ext/google_triplet_like__iter_10000.caffemodel" "${PWD}/yuanyang/cnn_master/build/triplet_deploy.caffemodel"
     #read -n1 -p "--> link file created ~"
     
     # 2 generate the new namelist.txt file, output file _--> namelist.txt feature.db 
@@ -40,7 +40,7 @@ while true; do
     
     # 3 train the model
     echo "Train new model"
-    ./build/tools/caffe  train -solver yuanyang/face_verfiry/triplet_loss_ext/solver.prototxt -weights yuanyang/face_verfiry/triplet_loss_ext/models/stage${iter}/spp_like__iter_5000.caffemodel 
+    ./build/tools/caffe  train -solver yuanyang/face_verfiry/triplet_loss_ext/solver.prototxt -weights yuanyang/face_verfiry/triplet_loss_ext/models/stage${iter}/google_triplet_like__iter_10000.caffemodel 
 
     # read -n1 -p "--> new model training done"
 

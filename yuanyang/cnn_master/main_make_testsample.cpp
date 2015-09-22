@@ -113,21 +113,16 @@ void commit_buffer( vector<string> &anchor_buffer,
 int main( int argc, char** argv)
 {
     /* main parameters */
-    int image_pair_per_people_max = 30;
-    int images_per_people_max = 30;
-    int num_neg_sample_per_pair = 3;
-    int max_try_num = 25;
+    int image_pair_per_people_max = 2;
+    int images_per_people_max = 2;
+    int num_neg_sample_per_pair = 2;
+    int max_try_num = 3;
 
-    int batch_size_in_prototxt = 22; // include anchor positive and nagetive , so multiply it by 3
+    int batch_size_in_prototxt = 2; // include anchor positive and nagetive , so multiply it by 3
 
     double margin = 0.3;
-    string feature_name = "l2_norm";
-    int image_load_option = CV_LOAD_IMAGE_GRAYSCALE;
-    int input_img_width = 140;
-    int input_img_height = 140;
-    int input_img_channel = 1;
 
-    ofstream output_file("namelist.txt");
+    ofstream output_file("val_namelist.txt");
     
     matdb my_db;
     my_db.open_db("feature.db");
@@ -145,24 +140,6 @@ int main( int argc, char** argv)
         return -1;
     }
 
-    string model_deploy_file = "triplet_deploy.prototxt";   
-    string model_binary_file = "triplet_deploy.caffemodel";
-    string model_mean_file   = "";
-
-    /* set cnn model */
-    cout<<"Loading DCNN model "<<endl;
-    cnn_master cnnfeature;
-
-    if(!cnnfeature.load_model( model_deploy_file, model_mean_file, model_binary_file))
-    {
-        cerr<<"Load Model failed "<<endl;
-        return -2;
-    }
-
-    cnnfeature.set_input_width(input_img_width);
-    cnnfeature.set_input_height(input_img_height);
-    cnnfeature.set_input_channel(input_img_channel);
-    
     /* add folder path .. */
     cout<<"Adding folders "<<endl;
     vector<string> folder_path;
@@ -177,31 +154,6 @@ int main( int argc, char** argv)
         folder_path.push_back(folder_iter->path().string());
     }
     
-    /* compute all the feature and store is  */
-    for( unsigned int i=0; i<folder_path.size();i++)
-    {
-        cout<<"processing folder : "<<i<<" out of "<<folder_path.size()<<" "<<folder_path[i]<<endl;   
-        vector<string> image_path;
-        get_all_image_files( folder_path[i], image_path, images_per_people_max);
-
-        vector<Mat> input_imgs;
-        for( unsigned int j=0; j<image_path.size();j++)
-        {
-            Mat im = imread( image_path[j], image_load_option);
-            cv::resize( im, im, Size( cnnfeature.get_input_width(), cnnfeature.get_input_height()));
-            input_imgs.push_back( im );
-        }
-           
-        /* compute the feature .. */
-        Mat output_feature;
-        cnnfeature.extract_blob( feature_name, input_imgs, output_feature);
-
-        /* store the feature */
-        for( unsigned int j=0; j<image_path.size();j++)
-            my_db.store_mat( form_key(i,j), output_feature.row(j));
-    }
-
-    cout<<"feature computing done "<<endl;
 
     for( unsigned int i=0; i<folder_path.size();i++)
     {
@@ -224,8 +176,11 @@ int main( int argc, char** argv)
 
             /* fetch feature, compute the distance  */
             Mat f1,f2;
-            my_db.fetch_mat( form_key(i, anchor_pos_pair[index][0]), f1);
-            my_db.fetch_mat( form_key(i, anchor_pos_pair[index][1]), f2);
+            if(!my_db.fetch_mat( form_key(i, anchor_pos_pair[index][0]), f1))
+                continue;
+
+            if(!my_db.fetch_mat( form_key(i, anchor_pos_pair[index][1]), f2))
+                continue;
 
             double ap_dis = cv::norm(f1, f2);
             
@@ -253,7 +208,9 @@ int main( int argc, char** argv)
                     if( used_neg_image.count( form_key(negative_people_index, neg_index)) != 0 )
                         continue;
                     
-                    my_db.fetch_mat(form_key(negative_people_index, neg_index),neg_fea);
+                    if(!my_db.fetch_mat(form_key(negative_people_index, neg_index),neg_fea))
+                        continue;
+                    
 
                     double an_dis = cv::norm( f1, neg_fea);
                     if( an_dis > ap_dis && an_dis < ap_dis + margin )
@@ -264,19 +221,6 @@ int main( int argc, char** argv)
                         anchor_buffer.push_back(image_path[anchor_pos_pair[index][0]]);
                         pos_buffer.push_back(image_path[anchor_pos_pair[index][1]]);
                         neg_buffer.push_back( neg_imgs[neg_index]);
-
-                        //Mat img_a,img_p,img_n;
-                        //img_a = imread( image_path[anchor_pos_pair[index][0]], image_load_option);
-                        //img_p = imread( image_path[anchor_pos_pair[index][1]], image_load_option);
-                        //img_n = imread( neg_imgs[neg_index], image_load_option);
-                        //cout<<"matched "<<endl;
-                        //cout<<"reading negative image "<<neg_imgs[neg_index]<<endl;
-                        //cout<<"a-p dis is "<<ap_dis<<endl;
-                        //cout<<"a-n dis is "<<an_dis<<endl;
-                        //imshow("anchor", img_a);
-                        //imshow("pos", img_p);
-                        //imshow("neg", img_n);
-                        //waitKey(0);
 
                         if( anchor_buffer.size() >= batch_size_in_prototxt)
                             commit_buffer(anchor_buffer, pos_buffer, neg_buffer, output_file);
@@ -290,11 +234,6 @@ int main( int argc, char** argv)
 
         }
     }
-
-    /* we need the final number be the multiple of batch_size_in_prototxt , discard the rest*/
-    //if( anchor_buffer.size() != 0)
-    //    commit_buffer(anchor_buffer, pos_buffer, neg_buffer, output_file);
-        
 
     output_file.close();
     return 0;
