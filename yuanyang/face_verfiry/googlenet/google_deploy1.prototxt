@@ -1,29 +1,12 @@
 name: "GoogleNet"
 
-#input: "data"
-#input_dim: 1
-#input_dim: 1
-#input_dim: 128
-#input_dim: 128
 layer {
-  name: "data" type: "Data" top: "data" top: "label"
-  include { phase: TRAIN  }
-  transform_param { mirror: true crop_size: 128 }
-  data_param {
-    source: "yuanyang/face_verfiry/train_lmdb/"
-    batch_size: 64
-    backend: LMDB
+  name: "data" type: "MemoryData" top: "data" top: "label"
+  transform_param {
+    crop_size: 128
   }
-}
-
-layer {
-  name: "data" type: "Data" top: "data" top: "label"
-  include { phase: TEST }
-  transform_param { mirror: false crop_size: 128 }
-  data_param {
-    source: "yuanyang/face_verfiry/test_lmdb/"
-    batch_size: 10
-    backend: LMDB
+  memory_data_param {
+    batch_size: 1 channels: 1  height: 128  width: 128
   }
 }
 
@@ -2600,36 +2583,37 @@ layer {
   bottom: "inception_5b/pool_proj"
   top: "inception_5b/output"
 }
-
 layer {
-  name: "final_conv" type: "Convolution" bottom: "inception_5b/output" top: "final_conv"
-  param { lr_mult: 10 decay_mult: 1 }
-  param { lr_mult: 20 decay_mult: 0 }
-  convolution_param {
-    num_output: 512 kernel_size: 1
-    weight_filler { type: "xavier" value: 0.1 }
-    bias_filler { type: "constant" value: 0 }
+  name: "pool5/7x7_s1"
+  type: "Pooling"
+  bottom: "inception_5b/output"
+  top: "pool5/7x7_s1"
+  pooling_param {
+    pool: AVE
+    kernel_size: 4
+    stride: 1
   }
-}
-layer {
-	name:"spp1" type:"SPP" 	bottom:"final_conv" top:"spp1"
-	spp_param{ 	pool:MAX pyramid_height: 3 }
 }
 
 layer{
-    name: "dropspp" type:"Dropout" bottom: "spp1" top: "spp1_drop"
-    dropout_param{ dropout_ratio: 0.6 }
+    name: "pool5/drop_7x7_s1"
+    type:"Dropout"
+    bottom: "pool5/7x7_s1"
+    top: "pool5/7x7_s1"
+    dropout_param{
+        dropout_ratio: 0.4
+    }
 }
 
 # fc layer
 layer {
-  name: "comb_fc" type: "InnerProduct"   bottom: "spp1_drop"   top: "fc1"
-  param { lr_mult: 10 decay_mult: 1 }
-  param { lr_mult: 20 decay_mult: 0 }
+  name: "fc1" type: "InnerProduct"   bottom: "pool5/7x7_s1"   top: "fc1"
+  param { lr_mult: 1 decay_mult: 1 }
+  param { lr_mult: 2 decay_mult: 0 }
   inner_product_param {
     num_output: 512
-    weight_filler { type: "gaussian" std: 0.021 }
-    bias_filler { type: "constant"  value: 0 }
+    weight_filler { type: "gaussian" std: 0.01 }
+    bias_filler { type: "constant"  value: 0.1 }
   }
 }
 layer {
@@ -2640,22 +2624,3 @@ layer {
     name: "eltwise1"   type: "Eltwise"   bottom: "slice1_1"   bottom: "slice1_2"   top: "eltwise1"
     eltwise_param{   operation: MAX  }
 }
-layer {
-  name: "classfy"  type: "InnerProduct"  bottom: "eltwise1"  top: "classfy1_new"
-  param {  lr_mult: 10  decay_mult: 10  }
-  param {  lr_mult: 20  decay_mult: 0  }
-  inner_product_param {
-    num_output: 9515
-    weight_filler {  type: "gaussian" std: 0.01  }
-    bias_filler {  type: "constant"  value: 0  }
-  }
-}
-layer {
-	name: "loss1" type: "SoftmaxWithLoss" bottom: "classfy1_new" bottom: "label"
-}
-layer {
-	name: "accuracy" type: "Accuracy" bottom: "classfy1_new" bottom: "label" top: "accuracy"
-	include { phase: TEST }
-}
-
-

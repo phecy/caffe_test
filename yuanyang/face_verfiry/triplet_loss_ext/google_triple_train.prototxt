@@ -2632,14 +2632,23 @@ layer {
   param {  lr_mult: 1  decay_mult: 1  }
   param {  lr_mult: 2  decay_mult: 0  }
   inner_product_param {
-    num_output: 512
+    num_output: 1024
     weight_filler {  type: "gaussian" std: 0.01  }
     bias_filler {  type: "constant"  value: 0  }
   }
 }
+layer {
+    name: "slice1"   type: "Slice"   bottom: "fc1"   top: "slice1_1"   top: "slice1_2"
+    slice_param{   slice_dim: 1   }
+}
+layer {
+    name: "eltwise1"   type: "Eltwise"   bottom: "slice1_1"   bottom: "slice1_2"   top: "eltwise1"
+    eltwise_param{   operation: MAX  }
+}
+
 # ---- fine tuning for triplet loss, tranform the metric in L2 norm metric
 layer {
-    name : "l2_norm" type : "GRN" bottom: "fc1" top : "l2_norm"
+    name : "l2_norm" type : "GRN" bottom: "eltwise1" top : "l2_norm"
 }
 layer {
     name: "slice12" type: "Slice" bottom: "l2_norm" top: "slice12_1" top: "slice12_2" top: "slice12_3"
@@ -2647,6 +2656,6 @@ layer {
 }
 layer {
     name : "triplet_loss" type : "TripletLoss" bottom: "slice12_1" bottom: "slice12_2" bottom: "slice12_3"
-    triplet_loss_param{ margin: 0.3 }
+    triplet_loss_param{ margin: 0.2 }
 }
 

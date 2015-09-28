@@ -60,13 +60,12 @@ int main( int argc, char **argv )
     /*  set paths for model */
     string model_deploy_file = string(argv[1]);   
     string model_binary_file = string(argv[2]);
-    string model_mean_file = "";
+    string model_mean_file = string(argv[3]);
 
     cnn_master cnnfeature;
     cnnfeature.load_model( model_deploy_file, model_mean_file, model_binary_file);
 
-    Mat img1 = imread("lyf2.png");   
-    Mat img2 = imread("lyf1.png");   
+    Mat img1 = imread(string(argv[4]));   
     if(img1.empty())
     {
         cout<<"input image is empty!"<<endl;
@@ -74,25 +73,21 @@ int main( int argc, char **argv )
     }
     vector<Mat> imagelist;
     imagelist.push_back(img1);
-    imagelist.push_back(img2);
 
     for(int c=0;c<imagelist.size();c++)
     {
         imshow("input",  imagelist[c]);
-        waitKey(0);
         cv::resize( imagelist[c], imagelist[c], Size(256,256), 0, 0 );
     }
 
     Mat output_feature;
 
-    cnnfeature.extract_blob( "output", imagelist, output_feature);
+    cnnfeature.extract_blob( "prob", imagelist, output_feature);
     cout<<"output feature size "<<output_feature.cols<<" "<<output_feature.rows<<endl;
 
     cout<<"feature 1 "<<output_feature.row(0)<<endl;
-    cout<<"feature 2 "<<output_feature.row(1)<<endl;
 
-    cout<<"Distance is "<<cv::norm( output_feature.row(0) - output_feature.row(1) )<<endl;
-    cout<<"Distance is "<<cosine_similarity( output_feature.row(0), output_feature.row(1) )<<endl;
 
+        waitKey(0);
     return 0;
 }

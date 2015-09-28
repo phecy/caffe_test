@@ -120,7 +120,7 @@ int main( int argc, char** argv)
 
     int batch_size_in_prototxt = 22; // include anchor positive and nagetive , so multiply it by 3
 
-    double margin = 0.3;
+    double margin = 0.2;
     string feature_name = "l2_norm";
     int image_load_option = CV_LOAD_IMAGE_GRAYSCALE;
     int input_img_width = 140;

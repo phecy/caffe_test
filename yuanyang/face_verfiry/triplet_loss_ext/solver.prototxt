@@ -4,17 +4,17 @@ test_iter: 5249
 test_interval: 500000
 test_initialization: false
 
-base_lr: 0.25
+base_lr: 0.01
 lr_policy: "fixed"
 
 # make the actual batchsize 22*3 = 66 ~= 64
-iter_size: 3
+# iter_size: 3
 
 gamma: 0.000005
 power: 0.75
 
 display: 100
-max_iter: 10000
+max_iter: 500000
 momentum: 0.9
 weight_decay: 0.0005
 snapshot: 10000
