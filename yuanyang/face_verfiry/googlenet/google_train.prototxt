@@ -2603,8 +2603,8 @@ layer {
 
 layer {
   name: "final_conv" type: "Convolution" bottom: "inception_5b/output" top: "final_conv"
-  param { lr_mult: 10 decay_mult: 1 }
-  param { lr_mult: 20 decay_mult: 0 }
+  param { lr_mult: 1 decay_mult: 1 }
+  param { lr_mult: 2 decay_mult: 0 }
   convolution_param {
     num_output: 512 kernel_size: 1
     weight_filler { type: "xavier" value: 0.1 }
@@ -2618,14 +2618,14 @@ layer {
 
 layer{
     name: "dropspp" type:"Dropout" bottom: "spp1" top: "spp1_drop"
-    dropout_param{ dropout_ratio: 0.6 }
+    dropout_param{ dropout_ratio: 0.5 }
 }
 
 # fc layer
 layer {
   name: "comb_fc" type: "InnerProduct"   bottom: "spp1_drop"   top: "fc1"
-  param { lr_mult: 10 decay_mult: 1 }
-  param { lr_mult: 20 decay_mult: 0 }
+  param { lr_mult: 1 decay_mult: 1 }
+  param { lr_mult: 2 decay_mult: 0 }
   inner_product_param {
     num_output: 512
     weight_filler { type: "gaussian" std: 0.021 }
@@ -2641,9 +2641,13 @@ layer {
     eltwise_param{   operation: MAX  }
 }
 layer {
+    name: "dropelt" type: "Dropout" bottom: "eltwise1" top: "eltwise1"
+    dropout_param { dropout_ratio: 0.5 }
+}
+layer {
   name: "classfy"  type: "InnerProduct"  bottom: "eltwise1"  top: "classfy1_new"
-  param {  lr_mult: 10  decay_mult: 10  }
-  param {  lr_mult: 20  decay_mult: 0  }
+  param {  lr_mult: 1  decay_mult: 10  }
+  param {  lr_mult: 2  decay_mult: 10  }
   inner_product_param {
     num_output: 9515
     weight_filler {  type: "gaussian" std: 0.01  }
