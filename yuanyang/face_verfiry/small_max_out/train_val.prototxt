@@ -14,7 +14,7 @@ layer {
   }
   data_param {
     source: "yuanyang/face_verfiry/train_leveldb/"
-    batch_size: 64
+    batch_size: 22
     backend: LMDB
   }
 }
