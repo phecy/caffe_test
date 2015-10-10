@@ -1,9 +1,9 @@
 net: "yuanyang/face_verfiry/smart_max_out/train_val.prototxt"
-test_iter: 3806
-test_interval: 10000
-test_initialization: false
+test_iter: 4676
+test_interval: 5000
+test_initialization: true
 
-base_lr: 0.01
+base_lr: 0.001
 lr_policy: "fixed"
 
 iter_size: 2
@@ -17,5 +17,5 @@ momentum: 0.9
 weight_decay: 0.0005
 snapshot: 5000
 
-snapshot_prefix: "yuanyang/face_verfiry/smart_max_out/smartass_"
+snapshot_prefix: "yuanyang/face_verfiry/smart_max_out/smartass_s1_1_"
 solver_mode: GPU

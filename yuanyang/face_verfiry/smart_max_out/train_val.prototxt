@@ -35,7 +35,7 @@ layer {
   }
   data_param {
     source: "yuanyang/face_verfiry/test_lmdb/"
-    batch_size: 5
+    batch_size: 3
     backend: LMDB
   }
 }
